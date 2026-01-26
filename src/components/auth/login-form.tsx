@@ -98,6 +98,9 @@ export function LoginForm() {
                       {...field}
                     />
                   </FormControl>
+                  <FormDescription>
+                    See mock-data.ts for a list of available IDs.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -112,7 +115,7 @@ export function LoginForm() {
                     <Input type="password" placeholder="********" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Use any password. You can find available IDs in the mock data.
+                    Use any password for this demo application.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
