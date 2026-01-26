@@ -1,64 +1,4 @@
 import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject } from '@/lib/types';
-import placeholderImages from '@/lib/placeholder-images.json';
-
-const avatars = placeholderImages.placeholderImages.filter(p => p.id.startsWith('avatar-'));
-
-export const mockStudents: Student[] = [
-  { id: 'student-1', name: 'Alice Johnson', email: 'a.johnson@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-1')?.imageUrl || '', classId: 'class-10a', attendancePercentage: 95, averageScore: 88, riskLevel: 'LOW', parentId: 'parent-1' },
-  { id: 'student-2', name: 'Bob Williams', email: 'b.williams@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-2')?.imageUrl || '', classId: 'class-10a', attendancePercentage: 82, averageScore: 76, riskLevel: 'MEDIUM', parentId: 'parent-2' },
-  { id: 'student-3', name: 'Charlie Brown', email: 'c.brown@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-7')?.imageUrl || '', classId: 'class-10b', attendancePercentage: 98, averageScore: 92, riskLevel: 'LOW', parentId: 'parent-3' },
-  { id: 'student-4', name: 'Diana Miller', email: 'd.miller@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-6')?.imageUrl || '', classId: 'class-10b', attendancePercentage: 75, averageScore: 68, riskLevel: 'HIGH', parentId: 'parent-4' },
-  { id: 'student-5', name: 'Ethan Davis', email: 'e.davis@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-8')?.imageUrl || '', classId: 'class-10a', attendancePercentage: 91, averageScore: 85, riskLevel: 'LOW', parentId: 'parent-5' },
-  // Adding more students
-  { id: 'student-6', name: 'Fiona Green', email: 'f.green@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/115/200/200', classId: 'class-9a', attendancePercentage: 99, averageScore: 94, riskLevel: 'LOW', parentId: 'parent-6' },
-  { id: 'student-7', name: 'George King', email: 'g.king@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/116/200/200', classId: 'class-9a', attendancePercentage: 88, averageScore: 81, riskLevel: 'MEDIUM', parentId: 'parent-7' },
-  { id: 'student-8', name: 'Hannah White', email: 'h.white@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/117/200/200', classId: 'class-9b', attendancePercentage: 78, averageScore: 72, riskLevel: 'HIGH', parentId: 'parent-8' },
-  { id: 'student-9', name: 'Ian Clark', email: 'i.clark@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/118/200/200', classId: 'class-9b', attendancePercentage: 92, averageScore: 89, riskLevel: 'LOW', parentId: 'parent-9' },
-  { id: 'student-10', name: 'Julia Lewis', email: 'j.lewis@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/119/200/200', classId: 'class-11a', attendancePercentage: 96, averageScore: 91, riskLevel: 'LOW', parentId: 'parent-10' },
-  { id: 'student-11', name: 'Kevin Walker', email: 'k.walker@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/120/200/200', classId: 'class-11a', attendancePercentage: 85, averageScore: 78, riskLevel: 'MEDIUM', parentId: 'parent-11' },
-  { id: 'student-12', name: 'Laura Hall', email: 'l.hall@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/121/200/200', classId: 'class-11b', attendancePercentage: 93, averageScore: 88, riskLevel: 'LOW', parentId: 'parent-12' },
-  { id: 'student-13', name: 'Mason Scott', email: 'm.scott@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/122/200/200', classId: 'class-11b', attendancePercentage: 68, averageScore: 62, riskLevel: 'HIGH', parentId: 'parent-13' },
-  { id: 'student-14', name: 'Nora Adams', email: 'n.adams@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/123/200/200', classId: 'class-12a', attendancePercentage: 97, averageScore: 95, riskLevel: 'LOW', parentId: 'parent-14' },
-  { id: 'student-15', name: 'Oscar Baker', email: 'o.baker@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/124/200/200', classId: 'class-12a', attendancePercentage: 90, averageScore: 84, riskLevel: 'LOW', parentId: 'parent-15' },
-];
-
-export const mockTeachers: Teacher[] = [
-  { id: 'teacher-1', name: 'Mr. David Chen', email: 'd.chen@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-3')?.imageUrl || '', classIds: ['class-10a'], subject: 'Mathematics' },
-  { id: 'teacher-2', name: 'Ms. Sarah Lee', email: 's.lee@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/109/200/200", classIds: ['class-10b'], subject: 'Physics' },
-  { id: 'teacher-3', name: 'Dr. Alan Turing', email: 'a.turing@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/114/200/200", classIds: ['class-11a'], subject: 'Computer Science' },
-  { id: 'teacher-4', name: 'Ms. Jane Austen', email: 'j.austen@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/125/200/200', classIds: ['class-11b'], subject: 'English' },
-  { id: 'teacher-5', name: 'Mr. Herodotus', email: 'm.herodotus@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/126/200/200', classIds: ['class-9a', 'class-9b'], subject: 'History' },
-  { id: 'teacher-6', name: 'Dr. Marie Curie', email: 'm.curie@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/127/200/200', classIds: ['class-12a'], subject: 'Biology' },
-];
-
-export const mockParents: Parent[] = [
-  { id: 'parent-1', name: 'Maria Garcia', email: 'm.garcia@email.com', avatarUrl: avatars.find(a => a.id === 'avatar-5')?.imageUrl || '', childIds: ['student-1'] },
-  { id: 'parent-2', name: 'John Smith', email: 'j.smith@email.com', avatarUrl: "https://picsum.photos/seed/110/200/200", childIds: ['student-2'] },
-  { id: 'parent-3', name: 'Emily Brown', email: 'e.brown@email.com', avatarUrl: "https://picsum.photos/seed/111/200/200", childIds: ['student-3'] },
-  { id: 'parent-4', name: 'David Miller', email: 'd.miller@email.com', avatarUrl: "https://picsum.photos/seed/112/200/200", childIds: ['student-4'] },
-  { id: 'parent-5', name: 'Sophia Davis', email: 's.davis@email.com', avatarUrl: "https://picsum.photos/seed/113/200/200", childIds: ['student-5'] },
-  // Adding more parents
-  { id: 'parent-6', name: 'Olivia Green', email: 'o.green@email.com', avatarUrl: 'https://picsum.photos/seed/128/200/200', childIds: ['student-6'] },
-  { id: 'parent-7', name: 'William King', email: 'w.king@email.com', avatarUrl: 'https://picsum.photos/seed/129/200/200', childIds: ['student-7'] },
-  { id: 'parent-8', name: 'Ava White', email: 'a.white@email.com', avatarUrl: 'https://picsum.photos/seed/130/200/200', childIds: ['student-8'] },
-  { id: 'parent-9', name: 'James Clark', email: 'j.clark@email.com', avatarUrl: 'https://picsum.photos/seed/131/200/200', childIds: ['student-9'] },
-  { id: 'parent-10', name: 'Isabella Lewis', email: 'i.lewis@email.com', avatarUrl: 'https://picsum.photos/seed/132/200/200', childIds: ['student-10'] },
-  { id: 'parent-11', name: 'Benjamin Walker', email: 'b.walker@email.com', avatarUrl: 'https://picsum.photos/seed/133/200/200', childIds: ['student-11'] },
-  { id: 'parent-12', name: 'Mia Hall', email: 'm.hall@email.com', avatarUrl: 'https://picsum.photos/seed/134/200/200', childIds: ['student-12'] },
-  { id: 'parent-13', name: 'Lucas Scott', email: 'l.scott@email.com', avatarUrl: 'https://picsum.photos/seed/135/200/200', childIds: ['student-13'] },
-  { id: 'parent-14', name: 'Amelia Adams', email: 'a.adams@email.com', avatarUrl: 'https://picsum.photos/seed/136/200/200', childIds: ['student-14'] },
-  { id: 'parent-15', name: 'Henry Baker', email: 'h.baker@email.com', avatarUrl: 'https://picsum.photos/seed/137/200/200', childIds: ['student-15'] },
-];
-
-export const mockClasses: Class[] = [
-  { id: 'class-9a', name: 'Grade 9 - Section A', teacherId: 'teacher-5', studentIds: ['student-6', 'student-7'] },
-  { id: 'class-9b', name: 'Grade 9 - Section B', teacherId: 'teacher-5', studentIds: ['student-8', 'student-9'] },
-  { id: 'class-10a', name: 'Grade 10 - Section A', teacherId: 'teacher-1', studentIds: ['student-1', 'student-2', 'student-5'] },
-  { id: 'class-10b', name: 'Grade 10 - Section B', teacherId: 'teacher-2', studentIds: ['student-3', 'student-4'] },
-  { id: 'class-11a', name: 'Grade 11 - Section A', teacherId: 'teacher-3', studentIds: ['student-10', 'student-11'] },
-  { id: 'class-11b', name: 'Grade 11 - Section B', teacherId: 'teacher-4', studentIds: ['student-12', 'student-13'] },
-  { id: 'class-12a', name: 'Grade 12 - Section A', teacherId: 'teacher-6', studentIds: ['student-14', 'student-15'] },
-];
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -68,19 +8,93 @@ export const mockSubjects: Subject[] = [
     { id: 'subject-5', name: 'Biology' },
     { id: 'subject-6', name: 'English' },
     { id: 'subject-7', name: 'Chemistry' },
+    { id: 'subject-8', name: 'Art' },
+    { id: 'subject-9', name: 'Music' },
+    { id: 'subject-10', name: 'Physical Education' },
+    { id: 'subject-11', name: 'Geography' },
+    { id: 'subject-12', name: 'General Science' },
+];
+
+export const mockTeachers: Teacher[] = [
+  { id: 'teacher-1', name: 'Mr. David Chen', email: 'd.chen@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t1/200', classIds: ['class-10'], subject: 'Mathematics' },
+  { id: 'teacher-2', name: 'Ms. Sarah Lee', email: 's.lee@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/t2/200", classIds: ['class-11'], subject: 'Physics' },
+  { id: 'teacher-3', name: 'Dr. Alan Turing', email: 'a.turing@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/t3/200", classIds: ['class-12'], subject: 'Computer Science' },
+  { id: 'teacher-4', name: 'Ms. Jane Austen', email: 'j.austen@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t4/200', classIds: ['class-8'], subject: 'English' },
+  { id: 'teacher-5', name: 'Mr. Herodotus', email: 'm.herodotus@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t5/200', classIds: ['class-9'], subject: 'History' },
+  { id: 'teacher-6', name: 'Dr. Marie Curie', email: 'm.curie@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t6/200', classIds: ['class-7'], subject: 'Biology' },
+  { id: 'teacher-7', name: 'Mr. Lavoisier', email: 'a.lavoisier@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t7/200', classIds: ['class-6'], subject: 'Chemistry' },
+  { id: 'teacher-8', name: 'Ms. Frida Kahlo', email: 'f.kahlo@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t8/200', classIds: ['class-5'], subject: 'Art' },
+  { id: 'teacher-9', name: 'Mr. Mozart', email: 'w.mozart@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t9/200', classIds: ['class-4'], subject: 'Music' },
+  { id: 'teacher-10', name: 'Mr. Jesse Owens', email: 'j.owens@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t10/200', classIds: ['class-3'], subject: 'Physical Education' },
+  { id: 'teacher-11', name: 'Ms. Amelia Earhart', email: 'a.earhart@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t11/200', classIds: ['class-2'], subject: 'Geography' },
+  { id: 'teacher-12', name: 'Mr. Isaac Newton', email: 'i.newton@atendalearn.edu', avatarUrl: 'https://picsum.photos/seed/t12/200', classIds: ['class-1'], subject: 'General Science' },
+];
+
+export const mockClasses: Class[] = [
+  { id: 'class-1', name: 'Grade 1', teacherId: 'teacher-12', studentIds: ['student-1', 'student-2'] },
+  { id: 'class-2', name: 'Grade 2', teacherId: 'teacher-11', studentIds: ['student-3', 'student-4'] },
+  { id: 'class-3', name: 'Grade 3', teacherId: 'teacher-10', studentIds: ['student-5', 'student-6'] },
+  { id: 'class-4', name: 'Grade 4', teacherId: 'teacher-9', studentIds: ['student-7', 'student-8'] },
+  { id: 'class-5', name: 'Grade 5', teacherId: 'teacher-8', studentIds: ['student-9', 'student-10'] },
+  { id: 'class-6', name: 'Grade 6', teacherId: 'teacher-7', studentIds: ['student-11', 'student-12'] },
+  { id: 'class-7', name: 'Grade 7', teacherId: 'teacher-6', studentIds: ['student-13', 'student-14'] },
+  { id: 'class-8', name: 'Grade 8', teacherId: 'teacher-4', studentIds: ['student-15', 'student-16'] },
+  { id: 'class-9', name: 'Grade 9', teacherId: 'teacher-5', studentIds: ['student-17', 'student-18'] },
+  { id: 'class-10', name: 'Grade 10', teacherId: 'teacher-1', studentIds: ['student-19', 'student-20'] },
+  { id: 'class-11', name: 'Grade 11', teacherId: 'teacher-2', studentIds: ['student-21', 'student-22'] },
+  { id: 'class-12', name: 'Grade 12', teacherId: 'teacher-3', studentIds: ['student-23', 'student-24'] },
+];
+
+export const mockStudents: Student[] = [
+    { id: 'student-1', name: 'Alex Young', email: 'a.young@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s1/200`, classId: 'class-1', attendancePercentage: 95, averageScore: 88, riskLevel: 'LOW', parentId: 'parent-1' },
+    { id: 'student-2', name: 'Bella Kim', email: 'b.kim@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s2/200`, classId: 'class-1', attendancePercentage: 92, averageScore: 85, riskLevel: 'LOW', parentId: 'parent-2' },
+    { id: 'student-3', name: 'Chris Lee', email: 'c.lee@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s3/200`, classId: 'class-2', attendancePercentage: 85, averageScore: 78, riskLevel: 'MEDIUM', parentId: 'parent-3' },
+    { id: 'student-4', name: 'David Chen', email: 'd.chen@student.edu', avatarUrl: `https://picsum.photos/seed/s4/200`, classId: 'class-2', attendancePercentage: 98, averageScore: 91, riskLevel: 'LOW', parentId: 'parent-4' },
+    { id: 'student-5', name: 'Eva Wong', email: 'e.wong@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s5/200`, classId: 'class-3', attendancePercentage: 70, averageScore: 65, riskLevel: 'HIGH', parentId: 'parent-5' },
+    { id: 'student-6', name: 'Frank Liu', email: 'f.liu@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s6/200`, classId: 'class-3', attendancePercentage: 96, averageScore: 89, riskLevel: 'LOW', parentId: 'parent-6' },
+    { id: 'student-7', name: 'Grace Tran', email: 'g.tran@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s7/200`, classId: 'class-4', attendancePercentage: 88, averageScore: 82, riskLevel: 'MEDIUM', parentId: 'parent-7' },
+    { id: 'student-8', name: 'Henry Nguyen', email: 'h.nguyen@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s8/200`, classId: 'class-4', attendancePercentage: 94, averageScore: 87, riskLevel: 'LOW', parentId: 'parent-8' },
+    { id: 'student-9', name: 'Ivy Phan', email: 'i.phan@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s9/200`, classId: 'class-5', attendancePercentage: 91, averageScore: 84, riskLevel: 'LOW', parentId: 'parent-9' },
+    { id: 'student-10', name: 'Jack Ma', email: 'j.ma@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s10/200`, classId: 'class-5', attendancePercentage: 75, averageScore: 70, riskLevel: 'HIGH', parentId: 'parent-10' },
+    { id: 'student-11', name: 'Kate Ho', email: 'k.ho@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s11/200`, classId: 'class-6', attendancePercentage: 99, averageScore: 92, riskLevel: 'LOW', parentId: 'parent-11' },
+    { id: 'student-12', name: 'Leo Wu', email: 'l.wu@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s12/200`, classId: 'class-6', attendancePercentage: 82, averageScore: 76, riskLevel: 'MEDIUM', parentId: 'parent-12' },
+    { id: 'student-13', name: 'Mia Lin', email: 'm.lin@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s13/200`, classId: 'class-7', attendancePercentage: 95, averageScore: 88, riskLevel: 'LOW', parentId: 'parent-13' },
+    { id: 'student-14', name: 'Noah Gao', email: 'n.gao@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s14/200`, classId: 'class-7', attendancePercentage: 93, averageScore: 86, riskLevel: 'LOW', parentId: 'parent-14' },
+    { id: 'student-15', name: 'Olivia Sun', email: 'o.sun@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s15/200`, classId: 'class-8', attendancePercentage: 80, averageScore: 74, riskLevel: 'MEDIUM', parentId: 'parent-15' },
+    { id: 'student-16', name: 'Peter Wang', email: 'p.wang@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s16/200`, classId: 'class-8', attendancePercentage: 65, averageScore: 60, riskLevel: 'HIGH', parentId: 'parent-16' },
+    { id: 'student-17', name: 'Quinn Tang', email: 'q.tang@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s17/200`, classId: 'class-9', attendancePercentage: 97, averageScore: 90, riskLevel: 'LOW', parentId: 'parent-17' },
+    { id: 'student-18', name: 'Ryan Fan', email: 'r.fan@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s18/200`, classId: 'class-9', attendancePercentage: 90, averageScore: 83, riskLevel: 'LOW', parentId: 'parent-18' },
+    { id: 'student-19', name: 'Sophia Zhang', email: 's.zhang@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s19/200`, classId: 'class-10', attendancePercentage: 88, averageScore: 81, riskLevel: 'MEDIUM', parentId: 'parent-19' },
+    { id: 'student-20', name: 'Tom Huang', email: 't.huang@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s20/200`, classId: 'class-10', attendancePercentage: 92, averageScore: 85, riskLevel: 'LOW', parentId: 'parent-20' },
+    { id: 'student-21', name: 'Ursula He', email: 'u.he@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s21/200`, classId: 'class-11', attendancePercentage: 78, averageScore: 72, riskLevel: 'HIGH', parentId: 'parent-21' },
+    { id: 'student-22', name: 'Victor Guo', email: 'v.guo@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s22/200`, classId: 'class-11', attendancePercentage: 96, averageScore: 89, riskLevel: 'LOW', parentId: 'parent-22' },
+    { id: 'student-23', name: 'Wendy Cai', email: 'w.cai@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s23/200`, classId: 'class-12', attendancePercentage: 99, averageScore: 94, riskLevel: 'LOW', parentId: 'parent-23' },
+    { id: 'student-24', name: 'Xavier Jiang', email: 'x.jiang@atendalearn.edu', avatarUrl: `https://picsum.photos/seed/s24/200`, classId: 'class-12', attendancePercentage: 85, averageScore: 79, riskLevel: 'MEDIUM', parentId: 'parent-24' },
+];
+
+export const mockParents: Parent[] = [
+    ...Array.from({ length: 24 }, (_, i) => {
+        const student = mockStudents[i];
+        const studentNameParts = student.name.split(' ');
+        const parentLastName = studentNameParts[studentNameParts.length - 1];
+        return {
+            id: `parent-${i + 1}`,
+            name: `${i % 2 === 0 ? 'Mrs.' : 'Mr.'} ${parentLastName}`,
+            email: `parent.${student.email}`,
+            avatarUrl: `https://picsum.photos/seed/p${i + 1}/200`,
+            childIds: [`student-${i + 1}`],
+        };
+    }),
 ];
 
 export const mockAssignments: Assignment[] = [
-  { id: 'assign-1', classId: 'class-10a', title: 'Algebra Homework 5', dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-2', classId: 'class-10a', title: 'Geometry Quiz', dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-3', classId: 'class-10b', title: 'Lab Report: Kinematics', dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-4', classId: 'class-10b', title: 'Wave Optics Assignment', dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-5', classId: 'class-9a', title: 'Ancient Civilizations Essay', dueDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-6', classId: 'class-11a', title: 'Data Structures Project', dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
-  { id: 'assign-7', classId: 'class-12a', title: 'Cellular Respiration Worksheet', dueDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
+  ...mockClasses.flatMap(c => ([
+    { id: `assign-${c.id}-1`, classId: c.id, title: `Homework for ${c.name}`, dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const },
+    { id: `assign-${c.id}-2`, classId: c.id, title: `Quiz for ${c.name}`, dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const },
+  ]))
 ];
 
-const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: avatars.find(a => a.id === 'avatar-4')?.imageUrl || '' };
+const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
 
 export const mockCredentials: User[] = [
   adminUser,

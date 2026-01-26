@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input"
 import type { Student } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
+import { useData } from "@/context/data-context"
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -41,51 +42,63 @@ const riskVariantMap: { [key: string]: "default" | "secondary" | "destructive" }
   HIGH: "destructive",
 };
 
-export const columns: ColumnDef<Student>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      const student = row.original
-      return (
-        <div className="flex items-center gap-3">
-            <Avatar>
-                <AvatarImage src={student.avatarUrl} alt={student.name} />
-                <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
-            </Avatar>
-            <div>
-                <div className="font-medium">{student.name}</div>
-                <div className="text-sm text-muted-foreground">{student.email}</div>
-            </div>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "attendancePercentage",
-    header: "Attendance",
-    cell: ({ row }) => <div className="text-center">{row.getValue("attendancePercentage")}%</div>,
-  },
-  {
-    accessorKey: "averageScore",
-    header: "Avg. Score",
-    cell: ({ row }) => <div className="text-center">{row.getValue("averageScore")}%</div>,
-  },
-  {
-    accessorKey: "riskLevel",
-    header: "Risk Level",
-    cell: ({ row }) => {
-        const riskLevel = row.getValue("riskLevel") as string;
-        return <Badge variant={riskVariantMap[riskLevel]}>{riskLevel}</Badge>
-    },
-  },
-]
-
 interface StudentsDataTableProps {
   students: Student[];
 }
 
 export function StudentsDataTable({ students }: StudentsDataTableProps) {
+  const { parents } = useData();
+
+  const columns = React.useMemo<ColumnDef<Student>[]>(() => [
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => {
+        const student = row.original
+        return (
+          <div className="flex items-center gap-3">
+              <Avatar>
+                  <AvatarImage src={student.avatarUrl} alt={student.name} />
+                  <AvatarFallback>{getInitials(student.name)}</AvatarFallback>
+              </Avatar>
+              <div>
+                  <div className="font-medium">{student.name}</div>
+                  <div className="text-sm text-muted-foreground">{student.email}</div>
+              </div>
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "parentId",
+      header: "Parent",
+      cell: ({ row }) => {
+        const parentId = row.getValue("parentId") as string;
+        const parent = parents.find(p => p.id === parentId);
+        return <div>{parent ? parent.name : "N/A"}</div>
+      },
+    },
+    {
+      accessorKey: "attendancePercentage",
+      header: "Attendance",
+      cell: ({ row }) => <div className="text-center">{row.getValue("attendancePercentage")}%</div>,
+    },
+    {
+      accessorKey: "averageScore",
+      header: "Avg. Score",
+      cell: ({ row }) => <div className="text-center">{row.getValue("averageScore")}%</div>,
+    },
+    {
+      accessorKey: "riskLevel",
+      header: "Risk Level",
+      cell: ({ row }) => {
+          const riskLevel = row.getValue("riskLevel") as string;
+          return <Badge variant={riskVariantMap[riskLevel]}>{riskLevel}</Badge>
+      },
+    },
+  ], [parents]);
+
+
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
