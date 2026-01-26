@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
+  userId: z.string().min(1, { message: "Please enter a valid User ID." }),
   password: z.string().min(1, { message: "Password is required." }), // Dummy validation
 });
 
@@ -43,14 +43,14 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      userId: "",
       password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const user = mockCredentials.find(u => u.email.toLowerCase() === values.email.toLowerCase());
+    const user = mockCredentials.find(u => u.id.toLowerCase() === values.userId.toLowerCase());
 
     setTimeout(() => { // Simulate network delay
         if (user) {
@@ -64,11 +64,11 @@ export function LoginForm() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "No user found with that email address.",
+                description: "No user found with that ID.",
             });
-            form.setError("email", {
+            form.setError("userId", {
                 type: "manual",
-                message: "No user found with that email address.",
+                message: "No user found with that ID.",
             });
         }
         setIsLoading(false);
@@ -80,7 +80,7 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
         <CardDescription>
-          Enter your credentials to access your dashboard.
+          Enter your User ID to access your dashboard.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -88,14 +88,13 @@ export function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="userId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>User ID</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="e.g. e.reed@atendalearn.edu"
+                      placeholder="e.g. user-admin"
                       {...field}
                     />
                   </FormControl>
@@ -113,7 +112,7 @@ export function LoginForm() {
                     <Input type="password" placeholder="********" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Use any password. You can find available emails in the mock data.
+                    Use any password. You can find available IDs in the mock data.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
