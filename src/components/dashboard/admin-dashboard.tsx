@@ -3,16 +3,15 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, TrendingUp, ShieldAlert } from "lucide-react";
-import { mockTeachers } from "@/lib/mock-data";
 import { StudentRiskChart } from "./student-risk-chart";
 import { StudentsDataTable } from "./students-data-table";
 import { useData } from '@/context/data-context';
 import { AddStudentDialog } from './add-student-dialog';
 
 export function AdminDashboard() {
-  const { students } = useData();
+  const { students, teachers } = useData();
   const totalStudents = students.length;
-  const totalTeachers = mockTeachers.length;
+  const totalTeachers = teachers.length;
   const highRiskStudents = students.filter(s => s.riskLevel === 'HIGH').length;
 
   const averageAttendance = totalStudents > 0 ? (

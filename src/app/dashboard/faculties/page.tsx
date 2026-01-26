@@ -1,9 +1,14 @@
 "use client";
 import { TeachersDataTable } from "@/components/dashboard/teachers-data-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockTeachers } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
+import { useAuth } from "@/context/auth-context";
+import { AddTeacherDialog } from "@/components/dashboard/add-teacher-dialog";
 
 export default function FacultiesPage() {
+    const { teachers } = useData();
+    const { role } = useAuth();
+
     return (
         <div className="space-y-8">
              <div className="flex justify-between items-center">
@@ -13,6 +18,7 @@ export default function FacultiesPage() {
                         Browse and manage all faculties in the system.
                     </p>
                 </div>
+                {role === 'ADMIN' && <AddTeacherDialog />}
             </div>
             <Card>
                 <CardHeader>
@@ -20,7 +26,7 @@ export default function FacultiesPage() {
                     <CardDescription>A complete list of teachers currently employed.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <TeachersDataTable teachers={mockTeachers} />
+                    <TeachersDataTable teachers={teachers} />
                 </CardContent>
             </Card>
         </div>
