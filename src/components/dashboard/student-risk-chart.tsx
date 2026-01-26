@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from 'react';
 import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import type { Student } from "@/lib/types"

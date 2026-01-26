@@ -1,4 +1,5 @@
 "use client";
+import * as React from 'react';
 import { useAuth } from "@/context/auth-context";
 import { mockStudents, getPendingAssignmentsForStudent } from "@/lib/mock-data";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
