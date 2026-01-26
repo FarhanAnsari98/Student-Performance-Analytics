@@ -1,15 +1,18 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment } from '@/lib/types';
-import { mockStudents, mockParents, mockAssignments, mockTeachers } from '@/lib/mock-data';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class } from '@/lib/types';
+import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses } from '@/lib/mock-data';
 
 interface DataContextType {
   students: Student[];
   parents: Parent[];
   teachers: Teacher[];
+  subjects: Subject[];
+  classes: Class[];
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl' | 'classIds'>) => void;
+  addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
   getPendingAssignmentsForStudent: (studentId: string) => StudentAssignment[];
 }
@@ -20,6 +23,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [students, setStudents] = useState<Student[]>(mockStudents);
   const [parents, setParents] = useState<Parent[]>(mockParents);
   const [teachers, setTeachers] = useState<Teacher[]>(mockTeachers);
+  const [subjects, setSubjects] = useState<Subject[]>(mockSubjects);
+  const [classes, setClasses] = useState<Class[]>(mockClasses);
 
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => {
@@ -57,6 +62,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setTeachers(prev => [...prev, newTeacher]);
   }, [teachers]);
 
+  const addSubject = useCallback((subjectData: Omit<Subject, 'id'>) => {
+    const newSubjectId = `subject-${subjects.length + 1}`;
+    const newSubject: Subject = {
+        ...subjectData,
+        id: newSubjectId,
+    };
+    setSubjects(prev => [...prev, newSubject]);
+  }, [subjects]);
+
   const getStudentById = useCallback((studentId: string) => {
     return students.find(s => s.id === studentId);
   }, [students]);
@@ -70,7 +84,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [students]);
 
 
-  const value = { students, parents, teachers, addStudent, addTeacher, getStudentById, getPendingAssignmentsForStudent };
+  const value = { students, parents, teachers, subjects, classes, addStudent, addTeacher, addSubject, getStudentById, getPendingAssignmentsForStudent };
 
   return (
     <DataContext.Provider value={value}>

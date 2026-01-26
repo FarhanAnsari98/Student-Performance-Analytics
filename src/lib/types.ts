@@ -46,6 +46,11 @@ export type Class = {
   studentIds: string[];
 };
 
+export type Subject = {
+  id: string;
+  name: string;
+};
+
 export type Assignment = {
   id: string;
   classId: string;

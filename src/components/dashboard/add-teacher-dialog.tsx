@@ -25,23 +25,29 @@ import {
   } from "@/components/ui/form";
 import { useData } from "@/context/data-context";
 import { PlusCircle } from "lucide-react";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select"
 
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     email: z.string().email({ message: "Please enter a valid email." }),
-    subject: z.string().min(2, { message: "Subject must be at least 2 characters." }),
+    subject: z.string({ required_error: "Please select a subject." }),
 });
 
 export function AddTeacherDialog() {
     const [open, setOpen] = React.useState(false);
-    const { addTeacher } = useData();
+    const { addTeacher, subjects } = useData();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
             email: "",
-            subject: "",
         },
     });
 
@@ -100,9 +106,16 @@ export function AddTeacherDialog() {
                         render={({ field }) => (
                             <FormItem>
                             <FormLabel>Subject</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g. History" {...field} />
-                            </FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a subject" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {subjects.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+                                </SelectContent>
+                            </Select>
                             <FormMessage />
                             </FormItem>
                         )}

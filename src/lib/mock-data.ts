@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject } from '@/lib/types';
 import placeholderImages from '@/lib/placeholder-images.json';
 
 const avatars = placeholderImages.placeholderImages.filter(p => p.id.startsWith('avatar-'));
@@ -29,6 +29,15 @@ export const mockClasses: Class[] = [
   { id: 'class-10a', name: 'Grade 10 - Section A', teacherId: 'teacher-1', studentIds: ['student-1', 'student-2', 'student-5'] },
   { id: 'class-10b', name: 'Grade 10 - Section B', teacherId: 'teacher-2', studentIds: ['student-3', 'student-4'] },
   { id: 'class-11a', name: 'Grade 11 - Section A', teacherId: 'teacher-3', studentIds: [] },
+];
+
+export const mockSubjects: Subject[] = [
+    { id: 'subject-1', name: 'Mathematics' },
+    { id: 'subject-2', name: 'Physics' },
+    { id: 'subject-3', name: 'Computer Science' },
+    { id: 'subject-4', name: 'History' },
+    { id: 'subject-5', name: 'Biology' },
+    { id: 'subject-6', name: 'English' },
 ];
 
 export const mockAssignments: Assignment[] = [

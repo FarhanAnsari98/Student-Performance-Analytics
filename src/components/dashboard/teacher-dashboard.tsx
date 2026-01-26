@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import { useAuth } from "@/context/auth-context";
-import { mockClasses } from "@/lib/mock-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { StudentsDataTable } from "./students-data-table";
 import { BookCopy, CheckCircle, Clock } from "lucide-react";
@@ -11,14 +10,14 @@ import { useData } from '@/context/data-context';
 
 export function TeacherDashboard() {
   const { user } = useAuth();
-  const { students, teachers, getPendingAssignmentsForStudent } = useData();
+  const { students, teachers, classes, getPendingAssignmentsForStudent } = useData();
   const teacher = teachers.find(t => t.id === user?.id.replace('user-', ''));
   
   if (!teacher) {
     return <div>Teacher data not found.</div>;
   }
 
-  const assignedClasses = mockClasses.filter(c => c.teacherId === teacher.id);
+  const assignedClasses = classes.filter(c => c.teacherId === teacher.id);
   const assignedStudentIds = assignedClasses.flatMap(c => c.studentIds);
   const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
   const pendingAssignments = assignedStudents.flatMap(s => getPendingAssignmentsForStudent(s.id));

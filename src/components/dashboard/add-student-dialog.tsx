@@ -32,7 +32,6 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-import { mockClasses } from "@/lib/mock-data";
 
 const formSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -44,7 +43,7 @@ const formSchema = z.object({
 
 export function AddStudentDialog() {
     const [open, setOpen] = React.useState(false);
-    const { addStudent } = useData();
+    const { addStudent, classes } = useData();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -118,7 +117,7 @@ export function AddStudentDialog() {
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                {mockClasses.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                                {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                             <FormMessage />
