@@ -41,7 +41,10 @@ const formSchema = z.object({
 
 export function AddTeacherDialog() {
     const [open, setOpen] = React.useState(false);
-    const { addTeacher, subjects } = useData();
+    const { addTeacher, subjects, teachers } = useData();
+
+    const assignedSubjects = new Set(teachers.map(t => t.subject));
+    const availableSubjects = subjects.filter(s => !assignedSubjects.has(s.name));
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -57,6 +60,11 @@ export function AddTeacherDialog() {
         setOpen(false);
     }
 
+    // Reset form when dialog opens/closes
+    React.useEffect(() => {
+      form.reset();
+    }, [open, form]);
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
@@ -69,7 +77,7 @@ export function AddTeacherDialog() {
             <DialogHeader>
             <DialogTitle>Add New Faculty</DialogTitle>
             <DialogDescription>
-                Fill in the details below to add a new teacher to the system.
+                Fill in the details below to add a new teacher. Each subject can only be assigned to one faculty member.
             </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -106,22 +114,25 @@ export function AddTeacherDialog() {
                         render={({ field }) => (
                             <FormItem>
                             <FormLabel>Subject</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={availableSubjects.length === 0}>
                                 <FormControl>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="Select a subject" />
+                                    <SelectValue placeholder="Select an available subject" />
                                 </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                {subjects.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+                                {availableSubjects.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
                                 </SelectContent>
                             </Select>
+                            {availableSubjects.length === 0 && (
+                                <p className="text-sm text-muted-foreground pt-1">All subjects are currently assigned.</p>
+                            )}
                             <FormMessage />
                             </FormItem>
                         )}
                     />
                     <DialogFooter>
-                        <Button type="submit">Add Faculty</Button>
+                        <Button type="submit" disabled={form.formState.isSubmitting || availableSubjects.length === 0}>Add Faculty</Button>
                     </DialogFooter>
                 </form>
             </Form>
