@@ -25,6 +25,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { Teacher } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { MoreHorizontal, Pencil } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { EditTeacherDialog } from "./edit-teacher-dialog"
+import { useAuth } from "@/context/auth-context"
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -34,33 +38,6 @@ const getInitials = (name: string) => {
     return name.substring(0, 2);
 };
 
-export const columns: ColumnDef<Teacher>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      const teacher = row.original
-      return (
-        <div className="flex items-center gap-3">
-            <Avatar>
-                <AvatarImage src={teacher.avatarUrl} alt={teacher.name} />
-                <AvatarFallback>{getInitials(teacher.name)}</AvatarFallback>
-            </Avatar>
-            <div>
-                <div className="font-medium">{teacher.name}</div>
-                <div className="text-sm text-muted-foreground">{teacher.email}</div>
-            </div>
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "subject",
-    header: "Subject",
-    cell: ({ row }) => <div>{row.getValue("subject")}</div>,
-  },
-]
-
 interface TeachersDataTableProps {
   teachers: Teacher[];
 }
@@ -69,6 +46,70 @@ export function TeachersDataTable({ teachers }: TeachersDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [editingTeacher, setEditingTeacher] = React.useState<Teacher | null>(null);
+  const { role } = useAuth();
+
+  const columns = React.useMemo<ColumnDef<Teacher>[]>(() => {
+    const baseColumns: ColumnDef<Teacher>[] = [
+        {
+          accessorKey: "name",
+          header: "Name",
+          cell: ({ row }) => {
+            const teacher = row.original
+            return (
+              <div className="flex items-center gap-3">
+                  <Avatar>
+                      <AvatarImage src={teacher.avatarUrl} alt={teacher.name} />
+                      <AvatarFallback>{getInitials(teacher.name)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                      <div className="font-medium">{teacher.name}</div>
+                      <div className="text-sm text-muted-foreground">{teacher.email}</div>
+                  </div>
+              </div>
+            )
+          },
+        },
+        {
+          accessorKey: "subject",
+          header: "Subject",
+          cell: ({ row }) => <div>{row.getValue("subject")}</div>,
+        },
+      ];
+
+    if (role === 'ADMIN') {
+        baseColumns.push({
+            id: "actions",
+            cell: ({ row }) => {
+                const teacher = row.original
+            
+                return (
+                <div className="text-right">
+                    <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => setEditingTeacher(teacher)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit Name
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                )
+            },
+        })
+    }
+
+    return baseColumns;
+  }, [role]);
+
+
 
   const table = useReactTable({
     data: teachers,
@@ -172,6 +213,13 @@ export function TeachersDataTable({ teachers }: TeachersDataTableProps) {
           </Button>
         </div>
       </div>
+      {editingTeacher && (
+        <EditTeacherDialog
+            teacher={editingTeacher}
+            open={!!editingTeacher}
+            onOpenChange={(open) => !open && setEditingTeacher(null)}
+        />
+      )}
     </div>
   )
 }

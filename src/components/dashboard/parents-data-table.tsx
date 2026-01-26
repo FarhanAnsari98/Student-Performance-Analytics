@@ -26,6 +26,9 @@ import { Input } from "@/components/ui/input"
 import type { Parent } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useData } from "@/context/data-context"
+import { MoreHorizontal, Pencil } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { EditParentDialog } from "./edit-parent-dialog"
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -41,6 +44,7 @@ interface ParentsDataTableProps {
 
 export function ParentsDataTable({ parents }: ParentsDataTableProps) {
   const { students } = useData();
+  const [editingParent, setEditingParent] = React.useState<Parent | null>(null);
   
   const columns = React.useMemo<ColumnDef<Parent>[]>(() => [
     {
@@ -71,6 +75,32 @@ export function ParentsDataTable({ parents }: ParentsDataTableProps) {
         return <div>{childrenNames.join(', ')}</div>
       },
     },
+    {
+        id: "actions",
+        cell: ({ row }) => {
+          const parent = row.original
+      
+          return (
+            <div className="text-right">
+                <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => setEditingParent(parent)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Name
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+          )
+        },
+      },
   ], [students]);
 
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -179,6 +209,13 @@ export function ParentsDataTable({ parents }: ParentsDataTableProps) {
           </Button>
         </div>
       </div>
+       {editingParent && (
+        <EditParentDialog
+            parent={editingParent}
+            open={!!editingParent}
+            onOpenChange={(open) => !open && setEditingParent(null)}
+        />
+      )}
     </div>
   )
 }

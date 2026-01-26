@@ -15,6 +15,9 @@ interface DataContextType {
   addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
   getPendingAssignmentsForStudent: (studentId: string) => StudentAssignment[];
+  updateStudent: (studentId: string, studentData: { name: string }) => void;
+  updateTeacher: (teacherId: string, teacherData: { name: string }) => void;
+  updateParent: (parentId: string, parentData: { name: string }) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -82,8 +85,34 @@ export function DataProvider({ children }: { children: ReactNode }) {
       .map(a => ({ ...a, studentId, status: 'PENDING' as const }));
   }, [students]);
 
+  const updateStudent = useCallback((studentId: string, studentData: { name: string }) => {
+    setStudents(prev => prev.map(s => s.id === studentId ? { ...s, ...studentData } : s));
+  }, []);
 
-  const value = { students, parents, teachers, subjects, classes, addStudent, addTeacher, addSubject, getStudentById, getPendingAssignmentsForStudent };
+  const updateTeacher = useCallback((teacherId: string, teacherData: { name: string }) => {
+    setTeachers(prev => prev.map(t => t.id === teacherId ? { ...t, ...teacherData } : t));
+  }, []);
+
+  const updateParent = useCallback((parentId: string, parentData: { name: string }) => {
+    setParents(prev => prev.map(p => p.id === parentId ? { ...p, ...parentData } : p));
+  }, []);
+
+
+  const value = { 
+    students, 
+    parents, 
+    teachers, 
+    subjects, 
+    classes, 
+    addStudent, 
+    addTeacher, 
+    addSubject, 
+    getStudentById, 
+    getPendingAssignmentsForStudent,
+    updateStudent,
+    updateTeacher,
+    updateParent
+  };
 
   return (
     <DataContext.Provider value={value}>
