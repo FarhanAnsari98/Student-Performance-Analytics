@@ -11,7 +11,7 @@ interface DataContextType {
   subjects: Subject[];
   classes: Class[];
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => void;
-  addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl' | 'classIds'>) => void;
+  addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
   getPendingAssignmentsForStudent: (studentId: string) => StudentAssignment[];
@@ -51,13 +51,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setParents(prev => [...prev, newParent]);
   }, [students, parents]);
 
-  const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'avatarUrl' | 'classIds'>) => {
+  const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'avatarUrl'>) => {
     const newTeacherId = `teacher-${teachers.length + 1}`;
     const newTeacher: Teacher = {
         ...teacherData,
         id: newTeacherId,
         avatarUrl: `https://picsum.photos/seed/${newTeacherId}/200/200`,
-        classIds: [], // Start with no classes
     };
     setTeachers(prev => [...prev, newTeacher]);
   }, [teachers]);

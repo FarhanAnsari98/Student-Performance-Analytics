@@ -3,10 +3,11 @@ import React from 'react';
 import { useAuth } from "@/context/auth-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { StudentsDataTable } from "./students-data-table";
-import { BookCopy, CheckCircle, Clock } from "lucide-react";
+import { BookCopy, CheckCircle, Clock, School } from "lucide-react";
 import { format } from "date-fns";
 import { Separator } from "../ui/separator";
 import { useData } from '@/context/data-context';
+import { Badge } from '../ui/badge';
 
 export function TeacherDashboard() {
   const { user } = useAuth();
@@ -22,7 +23,7 @@ export function TeacherDashboard() {
   const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
   const pendingAssignments = assignedStudents.flatMap(s => getPendingAssignmentsForStudent(s.id));
   
-  const upcomingAssignments = pendingAssignments.slice(0, 5);
+  const upcomingAssignments = pendingAssignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 5);
 
   return (
     <div className="space-y-8">
@@ -30,6 +31,21 @@ export function TeacherDashboard() {
         <h1 className="text-3xl font-bold font-headline">Welcome, {teacher.name}</h1>
         <p className="text-muted-foreground">Here's what's happening in your classes today. You are teaching {teacher.subject}.</p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className='font-headline flex items-center gap-2'>
+            <School className='h-6 w-6' />
+            Your Classes
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='flex flex-wrap gap-2'>
+            {assignedClasses.map(c => (
+              <Badge key={c.id} variant='secondary' className='text-base py-1 px-3'>{c.name}</Badge>
+            ))}
+        </CardContent>
+      </Card>
+
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>

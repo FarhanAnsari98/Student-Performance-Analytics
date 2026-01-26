@@ -35,7 +35,6 @@ export type Teacher = {
   name: string;
   email: string;
   avatarUrl: string;
-  classIds: string[];
   subject: string;
 };
 
