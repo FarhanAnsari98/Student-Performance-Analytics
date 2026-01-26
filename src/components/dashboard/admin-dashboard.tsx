@@ -3,15 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Users, TrendingUp, ShieldAlert, Library, GraduationCap, School } from "lucide-react";
+import { Users, TrendingUp, ShieldAlert, Library, GraduationCap, School, Contact } from "lucide-react";
 import { StudentRiskChart } from "./student-risk-chart";
 import { StudentsDataTable } from "./students-data-table";
 import { useData } from '@/context/data-context';
 import { AddStudentDialog } from './add-student-dialog';
 
 export function AdminDashboard() {
-  const { students, teachers, subjects, classes } = useData();
+  const { students, teachers, subjects, classes, parents } = useData();
   const totalStudents = students.length;
+  const totalParents = parents.length;
   const totalTeachers = teachers.length;
   const totalSubjects = subjects.length;
   const totalClasses = classes.length;
@@ -31,7 +32,7 @@ export function AdminDashboard() {
         <AddStudentDialog />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Students</CardTitle>
@@ -43,20 +44,29 @@ export function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Parents</CardTitle>
+            <Contact className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averageAttendance}%</div>
+            <div className="text-2xl font-bold">{totalParents}</div>
           </CardContent>
         </Card>
-         <Card>
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Teachers</CardTitle>
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalTeachers}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Attendance</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{averageAttendance}%</div>
           </CardContent>
         </Card>
         <Card>
