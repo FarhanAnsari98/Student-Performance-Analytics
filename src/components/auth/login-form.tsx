@@ -28,6 +28,7 @@ import {
 import { mockCredentials } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Separator } from "../ui/separator";
 
 const formSchema = z.object({
   userId: z.string().min(1, { message: "Please enter a valid User ID." }),
@@ -75,6 +76,13 @@ export function LoginForm() {
     }, 500);
   }
 
+  const sampleUsers = [
+    { role: 'Admin', id: 'user-admin' },
+    { role: 'Teacher', id: 'user-teacher-1' },
+    { role: 'Student', id: 'user-student-1' },
+    { role: 'Parent', id: 'user-parent-1' },
+  ];
+
   return (
     <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
       <CardHeader>
@@ -98,9 +106,6 @@ export function LoginForm() {
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    See mock-data.ts for a list of available IDs.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -127,6 +132,27 @@ export function LoginForm() {
             </Button>
           </form>
         </Form>
+        <Separator className="my-4" />
+        <div className="text-center">
+            <p className="text-xs text-muted-foreground">Or click to quick-login as:</p>
+            <div className="flex flex-wrap justify-center gap-2 mt-2">
+                {sampleUsers.map(user => (
+                <Button
+                    key={user.id}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        form.setValue('userId', user.id);
+                        form.setValue('password', 'password');
+                    }}
+                >
+                    {user.role}
+                </Button>
+                ))}
+            </div>
+        </div>
       </CardContent>
     </Card>
   );
