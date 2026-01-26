@@ -1,15 +1,23 @@
+"use client";
 import { StudentsDataTable } from "@/components/dashboard/students-data-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockStudents } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
+import { useAuth } from "@/context/auth-context";
+import { AddStudentDialog } from "@/components/dashboard/add-student-dialog";
 
 export default function StudentsPage() {
+    const { students } = useData();
+    const { role } = useAuth();
     return (
         <div className="space-y-8">
-             <div>
-                <h1 className="text-3xl font-bold font-headline">Student Directory</h1>
-                <p className="text-muted-foreground">
-                    Browse and manage all students in the system.
-                </p>
+             <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Student Directory</h1>
+                    <p className="text-muted-foreground">
+                        Browse and manage all students in the system.
+                    </p>
+                </div>
+                {role === 'ADMIN' && <AddStudentDialog />}
             </div>
             <Card>
                 <CardHeader>
@@ -17,7 +25,7 @@ export default function StudentsPage() {
                     <CardDescription>A complete list of students currently enrolled.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <StudentsDataTable students={mockStudents} />
+                    <StudentsDataTable students={students} />
                 </CardContent>
             </Card>
         </div>

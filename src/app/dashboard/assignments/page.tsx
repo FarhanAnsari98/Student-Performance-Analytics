@@ -1,16 +1,17 @@
 "use client";
 
 import { useAuth } from "@/context/auth-context";
-import { mockStudents, getPendingAssignmentsForStudent } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookCopy, CheckCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
 
 export default function AssignmentsPage() {
     const { user } = useAuth();
+    const { students, getPendingAssignmentsForStudent } = useData();
     // This page is for students and parents. A parent would see the selected child's data.
     // For simplicity, we'll assume the logged-in user is a student or we are viewing for the first child.
-    const student = mockStudents.find(s => s.id === user?.id.replace('user-', '') || s.parentId === user?.id.replace('user-',''));
+    const student = students.find(s => s.id === user?.id.replace('user-', '') || s.parentId === user?.id.replace('user-',''));
 
     if (!student) {
         return <div>No student data available.</div>

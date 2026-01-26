@@ -1,15 +1,17 @@
 "use client";
-import * as React from 'react';
+import React from 'react';
 import { useAuth } from "@/context/auth-context";
-import { mockStudents, mockTeachers, mockClasses, getPendingAssignmentsForStudent } from "@/lib/mock-data";
+import { mockClasses, mockTeachers } from "@/lib/mock-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { StudentsDataTable } from "./students-data-table";
 import { BookCopy, CheckCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { Separator } from "../ui/separator";
+import { useData } from '@/context/data-context';
 
 export function TeacherDashboard() {
   const { user } = useAuth();
+  const { students, getPendingAssignmentsForStudent } = useData();
   const teacher = mockTeachers.find(t => t.id === user?.id.replace('user-', ''));
   
   if (!teacher) {
@@ -18,7 +20,7 @@ export function TeacherDashboard() {
 
   const assignedClasses = mockClasses.filter(c => c.teacherId === teacher.id);
   const assignedStudentIds = assignedClasses.flatMap(c => c.studentIds);
-  const assignedStudents = mockStudents.filter(s => assignedStudentIds.includes(s.id));
+  const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
   const pendingAssignments = assignedStudents.flatMap(s => getPendingAssignmentsForStudent(s.id));
   
   const upcomingAssignments = pendingAssignments.slice(0, 5);
@@ -55,7 +57,7 @@ export function TeacherDashboard() {
                     <div className="flex-grow">
                       <p className="font-semibold">{assignment.title}</p>
                       <p className="text-sm text-muted-foreground">
-                        For: {mockStudents.find(s=>s.id === assignment.studentId)?.name}
+                        For: {students.find(s=>s.id === assignment.studentId)?.name}
                       </p>
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
                         <Clock className="h-3 w-3" /> Due {format(new Date(assignment.dueDate), "PPP")}

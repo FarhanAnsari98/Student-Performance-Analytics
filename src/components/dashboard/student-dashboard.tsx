@@ -1,11 +1,11 @@
 "use client";
-import * as React from 'react';
+import React from 'react';
 import { useAuth } from "@/context/auth-context";
-import { mockStudents, getPendingAssignmentsForStudent } from "@/lib/mock-data";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookCopy, Clock, TrendingUp, Users } from "lucide-react";
 import { format } from 'date-fns';
+import { useData } from '@/context/data-context';
 
 const riskVariantMap: { [key: string]: "default" | "secondary" | "destructive" } = {
   LOW: "default",
@@ -15,7 +15,8 @@ const riskVariantMap: { [key: string]: "default" | "secondary" | "destructive" }
 
 export function StudentDashboard() {
   const { user } = useAuth();
-  const student = mockStudents.find(s => s.id === user?.id.replace('user-', ''));
+  const { students, getPendingAssignmentsForStudent } = useData();
+  const student = students.find(s => s.id === user?.id.replace('user-', ''));
 
   if (!student) {
     return <div>Student data not found.</div>;

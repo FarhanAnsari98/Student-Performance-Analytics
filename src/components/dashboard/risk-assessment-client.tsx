@@ -1,6 +1,5 @@
 "use client";
 import React from 'react';
-import { mockStudents, getPendingAssignmentsForStudent } from '@/lib/mock-data';
 import { assessAcademicRisk, AssessAcademicRiskOutput } from '@/ai/flows/assess-academic-risk-flow';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { AlertCircle, BrainCircuit, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useData } from '@/context/data-context';
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -22,9 +22,10 @@ export function RiskAssessmentClient() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [assessment, setAssessment] = React.useState<AssessAcademicRiskOutput | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const { students, getPendingAssignmentsForStudent } = useData();
 
   const handleAssessment = async () => {
-    const student = mockStudents.find(s => s.id === selectedStudentId);
+    const student = students.find(s => s.id === selectedStudentId);
     if (!student) {
         setError("Please select a student first.");
         return;
@@ -50,7 +51,7 @@ export function RiskAssessmentClient() {
     }
   };
   
-  const student = mockStudents.find(s => s.id === selectedStudentId);
+  const student = students.find(s => s.id === selectedStudentId);
 
   return (
     <Card>
@@ -64,7 +65,7 @@ export function RiskAssessmentClient() {
             <SelectValue placeholder="Select a student..." />
           </SelectTrigger>
           <SelectContent>
-            {mockStudents.map(student => (
+            {students.map(student => (
               <SelectItem key={student.id} value={student.id}>
                 <div className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">

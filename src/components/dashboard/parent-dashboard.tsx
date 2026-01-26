@@ -1,7 +1,6 @@
 "use client";
 import React from 'react';
 import { useAuth } from "@/context/auth-context";
-import { mockParents, mockStudents, getPendingAssignmentsForStudent } from "@/lib/mock-data";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/select"
 import { BookCopy, Clock, TrendingUp, Users } from "lucide-react";
 import { format } from 'date-fns';
+import { useData } from '@/context/data-context';
 
 const riskVariantMap: { [key: string]: "default" | "secondary" | "destructive" } = {
   LOW: "default",
@@ -31,15 +31,34 @@ const getInitials = (name: string) => {
 
 export function ParentDashboard() {
   const { user } = useAuth();
-  const parent = mockParents.find(p => p.id === user?.id.replace('user-', ''));
-  const children = mockStudents.filter(s => parent?.childIds.includes(s.id));
+  const { parents, students, getPendingAssignmentsForStudent } = useData();
+  const parent = parents.find(p => p.id === user?.id.replace('user-', ''));
+  const children = students.filter(s => parent?.childIds.includes(s.id));
   const [selectedChildId, setSelectedChildId] = React.useState(children[0]?.id || '');
+
+  React.useEffect(() => {
+    if (children.length > 0 && !selectedChildId) {
+      setSelectedChildId(children[0].id);
+    }
+  }, [children, selectedChildId]);
 
   const selectedChild = children.find(c => c.id === selectedChildId);
   const pendingAssignments = selectedChild ? getPendingAssignmentsForStudent(selectedChild.id) : [];
 
-  if (!parent || children.length === 0) {
-    return <div>Parent or child data not found.</div>;
+  if (!parent) {
+    return <div>Parent data not found.</div>;
+  }
+  
+  if (children.length === 0) {
+    return (
+       <div className="space-y-8">
+        <div>
+            <h1 className="text-3xl font-bold font-headline">Welcome, {parent.name}!</h1>
+            <p className="text-muted-foreground">Your child's academic performance at a glance.</p>
+        </div>
+        <p>No child data found.</p>
+      </div>
+    )
   }
 
   return (

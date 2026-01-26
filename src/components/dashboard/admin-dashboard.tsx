@@ -1,26 +1,32 @@
 "use client";
 
-import * as React from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, TrendingUp, ShieldAlert } from "lucide-react";
-import { mockStudents, mockTeachers } from "@/lib/mock-data";
+import { mockTeachers } from "@/lib/mock-data";
 import { StudentRiskChart } from "./student-risk-chart";
 import { StudentsDataTable } from "./students-data-table";
+import { useData } from '@/context/data-context';
+import { AddStudentDialog } from './add-student-dialog';
 
 export function AdminDashboard() {
-  const totalStudents = mockStudents.length;
+  const { students } = useData();
+  const totalStudents = students.length;
   const totalTeachers = mockTeachers.length;
-  const highRiskStudents = mockStudents.filter(s => s.riskLevel === 'HIGH').length;
+  const highRiskStudents = students.filter(s => s.riskLevel === 'HIGH').length;
 
-  const averageAttendance = (
-    mockStudents.reduce((acc, s) => acc + s.attendancePercentage, 0) / totalStudents
-  ).toFixed(1);
+  const averageAttendance = totalStudents > 0 ? (
+    students.reduce((acc, s) => acc + s.attendancePercentage, 0) / totalStudents
+  ).toFixed(1) : "0.0";
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Overall school performance at a glance.</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Overall school performance at a glance.</p>
+        </div>
+        <AddStudentDialog />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -68,7 +74,7 @@ export function AdminDashboard() {
             <CardTitle className="font-headline">All Students</CardTitle>
           </CardHeader>
           <CardContent>
-             <StudentsDataTable students={mockStudents} />
+             <StudentsDataTable students={students} />
           </CardContent>
         </Card>
         <Card className="col-span-4 lg:col-span-3">
@@ -76,7 +82,7 @@ export function AdminDashboard() {
             <CardTitle className="font-headline">Student Risk Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <StudentRiskChart students={mockStudents} />
+            <StudentRiskChart students={students} />
           </CardContent>
         </Card>
       </div>
