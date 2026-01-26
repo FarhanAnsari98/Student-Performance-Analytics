@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
-import type { Role } from "@/lib/types";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -13,93 +15,116 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { mockUsers } from "@/lib/mock-data";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { mockCredentials } from "@/lib/mock-data";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z.string().min(1, { message: "Password is required." }), // Dummy validation
+});
 
 export function LoginForm() {
-  const [role, setRole] = React.useState<Role>("STUDENT");
   const router = useRouter();
   const { login } = useAuth();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    let userToLogin;
-    switch (role) {
-      case "ADMIN":
-        userToLogin = mockUsers.admin;
-        break;
-      case "TEACHER":
-        userToLogin = mockUsers.teacher;
-        break;
-      case "PARENT":
-        userToLogin = mockUsers.parent;
-        break;
-      case "STUDENT":
-      default:
-        userToLogin = mockUsers.student;
-        break;
-    }
-    login(userToLogin);
-    router.push("/dashboard");
-  };
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    const user = mockCredentials.find(u => u.email.toLowerCase() === values.email.toLowerCase());
+
+    setTimeout(() => { // Simulate network delay
+        if (user) {
+            login(user);
+            toast({
+                title: "Login Successful",
+                description: `Welcome back, ${user.name}!`,
+            });
+            router.push("/dashboard");
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "No user found with that email address.",
+            });
+            form.setError("email", {
+                type: "manual",
+                message: "No user found with that email address.",
+            });
+        }
+        setIsLoading(false);
+    }, 500);
+  }
 
   return (
     <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
         <CardDescription>
-          Select your role to access your dashboard.
+          Enter your credentials to access your dashboard.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleLogin} className="grid gap-4">
-          <RadioGroup
-            defaultValue="STUDENT"
-            className="grid grid-cols-2 gap-4"
-            onValueChange={(value: Role) => setRole(value)}
-          >
-            <div>
-              <RadioGroupItem value="STUDENT" id="student" className="peer sr-only" />
-              <Label
-                htmlFor="student"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                Student
-              </Label>
-            </div>
-            <div>
-              <RadioGroupItem value="TEACHER" id="teacher" className="peer sr-only" />
-              <Label
-                htmlFor="teacher"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                Teacher
-              </Label>
-            </div>
-            <div>
-              <RadioGroupItem value="PARENT" id="parent" className="peer sr-only" />
-              <Label
-                htmlFor="parent"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                Parent
-              </Label>
-            </div>
-            <div>
-              <RadioGroupItem value="ADMIN" id="admin" className="peer sr-only" />
-              <Label
-                htmlFor="admin"
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                Admin
-              </Label>
-            </div>
-          </RadioGroup>
-          <Button type="submit" className="w-full mt-4">
-            Sign in as {role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()}
-          </Button>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="e.g. e.reed@atendalearn.edu"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="********" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Use any password. You can find available emails in the mock data.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Sign In
+            </Button>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

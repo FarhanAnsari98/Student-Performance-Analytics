@@ -29,7 +29,7 @@ export function TeacherDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Welcome, {teacher.name}</h1>
-        <p className="text-muted-foreground">Here's what's happening in your classes today.</p>
+        <p className="text-muted-foreground">Here's what's happening in your classes today. You are teaching {teacher.subject}.</p>
       </div>
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">

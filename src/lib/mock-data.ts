@@ -1,14 +1,7 @@
-import type { Student, Teacher, Parent, Class, Assignment, User } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role } from '@/lib/types';
 import placeholderImages from '@/lib/placeholder-images.json';
 
 const avatars = placeholderImages.placeholderImages.filter(p => p.id.startsWith('avatar-'));
-
-export const mockUsers: Record<string, User> = {
-  admin: { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: avatars.find(a => a.id === 'avatar-4')?.imageUrl || '' },
-  teacher: { id: 'user-teacher-1', name: 'Mr. David Chen', email: 'd.chen@atendalearn.edu', role: 'TEACHER', avatarUrl: avatars.find(a => a.id === 'avatar-3')?.imageUrl || '' },
-  student: { id: 'user-student-1', name: 'Alice Johnson', email: 'a.johnson@atendalearn.edu', role: 'STUDENT', avatarUrl: avatars.find(a => a.id === 'avatar-1')?.imageUrl || '' },
-  parent: { id: 'user-parent-1', name: 'Maria Garcia', email: 'm.garcia@email.com', role: 'PARENT', avatarUrl: avatars.find(a => a.id === 'avatar-5')?.imageUrl || '' },
-};
 
 export const mockStudents: Student[] = [
   { id: 'student-1', name: 'Alice Johnson', email: 'a.johnson@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-1')?.imageUrl || '', classId: 'class-10a', attendancePercentage: 95, averageScore: 88, riskLevel: 'LOW', parentId: 'parent-1' },
@@ -21,6 +14,7 @@ export const mockStudents: Student[] = [
 export const mockTeachers: Teacher[] = [
   { id: 'teacher-1', name: 'Mr. David Chen', email: 'd.chen@atendalearn.edu', avatarUrl: avatars.find(a => a.id === 'avatar-3')?.imageUrl || '', classIds: ['class-10a'], subject: 'Mathematics' },
   { id: 'teacher-2', name: 'Ms. Sarah Lee', email: 's.lee@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/109/200/200", classIds: ['class-10b'], subject: 'Physics' },
+  { id: 'teacher-3', name: 'Dr. Alan Turing', email: 'a.turing@atendalearn.edu', avatarUrl: "https://picsum.photos/seed/114/200/200", classIds: ['class-11a'], subject: 'Computer Science' },
 ];
 
 export const mockParents: Parent[] = [
@@ -34,6 +28,7 @@ export const mockParents: Parent[] = [
 export const mockClasses: Class[] = [
   { id: 'class-10a', name: 'Grade 10 - Section A', teacherId: 'teacher-1', studentIds: ['student-1', 'student-2', 'student-5'] },
   { id: 'class-10b', name: 'Grade 10 - Section B', teacherId: 'teacher-2', studentIds: ['student-3', 'student-4'] },
+  { id: 'class-11a', name: 'Grade 11 - Section A', teacherId: 'teacher-3', studentIds: [] },
 ];
 
 export const mockAssignments: Assignment[] = [
@@ -42,6 +37,16 @@ export const mockAssignments: Assignment[] = [
   { id: 'assign-3', classId: 'class-10b', title: 'Lab Report: Kinematics', dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
   { id: 'assign-4', classId: 'class-10b', title: 'Wave Optics Assignment', dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' },
 ];
+
+const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: avatars.find(a => a.id === 'avatar-4')?.imageUrl || '' };
+
+export const mockCredentials: User[] = [
+  adminUser,
+  ...mockStudents.map(s => ({ id: `user-${s.id}`, name: s.name, email: s.email, role: 'STUDENT' as Role, avatarUrl: s.avatarUrl })),
+  ...mockTeachers.map(t => ({ id: `user-${t.id}`, name: t.name, email: t.email, role: 'TEACHER' as Role, avatarUrl: t.avatarUrl })),
+  ...mockParents.map(p => ({ id: `user-${p.id}`, name: p.name, email: p.email, role: 'PARENT' as Role, avatarUrl: p.avatarUrl })),
+];
+
 
 // Function to get pending assignments for a student
 export const getPendingAssignmentsForStudent = (studentId: string) => {
