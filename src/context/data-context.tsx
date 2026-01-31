@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus } from '@/lib/types';
-import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance } from '@/lib/mock-data';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role } from '@/lib/types';
+import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance, mockAnnouncements } from '@/lib/mock-data';
 
 interface DataContextType {
   students: Student[];
@@ -11,6 +11,7 @@ interface DataContextType {
   subjects: Subject[];
   classes: Class[];
   attendance: AttendanceRecord[];
+  announcements: Announcement[];
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
@@ -20,6 +21,7 @@ interface DataContextType {
   updateTeacher: (teacherId: string, teacherData: { name: string }) => void;
   updateParent: (parentId: string, parentData: { name: string }) => void;
   saveAttendanceForClass: (records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => void;
+  addAnnouncement: (content: string, author: { id: string; name: string; role: Role }) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -34,6 +36,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,6 +50,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setSubjects(parsedData.subjects || []);
         setClasses(parsedData.classes || []);
         setAttendance(parsedData.attendance || []);
+        setAnnouncements(parsedData.announcements || []);
       } else {
         // If no data, use mock and store it
         setStudents(mockStudents);
@@ -55,6 +59,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setSubjects(mockSubjects);
         setClasses(mockClasses);
         setAttendance(mockAttendance);
+        setAnnouncements(mockAnnouncements);
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -65,6 +70,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setSubjects(mockSubjects);
       setClasses(mockClasses);
       setAttendance(mockAttendance);
+      setAnnouncements(mockAnnouncements);
     } finally {
         setLoading(false);
     }
@@ -73,13 +79,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loading) {
       try {
-        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance });
+        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance, announcements });
         localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
       } catch (error) {
         console.error("Failed to save data to localStorage", error);
       }
     }
-  }, [students, parents, teachers, subjects, classes, attendance, loading]);
+  }, [students, parents, teachers, subjects, classes, attendance, announcements, loading]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
@@ -155,6 +161,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
         return [...otherDayRecords, ...newRecordsForDay];
     });
   }, []);
+  
+  const addAnnouncement = useCallback((content: string, author: { id: string; name: string; role: Role }) => {
+    const newAnnouncement: Announcement = {
+        id: `ann-${Date.now()}`,
+        authorId: author.id,
+        authorName: author.name,
+        authorRole: author.role,
+        content: content,
+        date: new Date().toISOString(),
+    };
+    setAnnouncements(prev => [newAnnouncement, ...prev]);
+  }, []);
 
 
   const value = { 
@@ -164,6 +182,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     subjects, 
     classes, 
     attendance,
+    announcements,
     addStudent, 
     addTeacher, 
     addSubject, 
@@ -172,7 +191,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     updateStudent,
     updateTeacher,
     updateParent,
-    saveAttendanceForClass
+    saveAttendanceForClass,
+    addAnnouncement,
   };
   
   if (loading) {

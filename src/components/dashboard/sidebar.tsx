@@ -9,12 +9,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, BookCopy, BarChart3, ShieldAlert, GraduationCap, Library, Contact, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, Users, BookCopy, BarChart3, ShieldAlert, GraduationCap, Library, Contact, CalendarCheck, Megaphone } from 'lucide-react';
 import type { NavItem } from '@/lib/types';
 import { useAuth } from '@/context/auth-context';
 
 const navItems: NavItem[] = [
   { href: '/dashboard', title: 'Dashboard', icon: LayoutDashboard, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'PARENT'] },
+  { href: '/dashboard/communication', title: 'Communication', icon: Megaphone, roles: ['ADMIN', 'TEACHER', 'STUDENT', 'PARENT'] },
   { href: '/dashboard/students', title: 'Students', icon: Users, roles: ['ADMIN', 'TEACHER'] },
   { href: '/dashboard/parents', title: 'Parents', icon: Contact, roles: ['ADMIN'] },
   { href: '/dashboard/faculties', title: 'Faculties', icon: GraduationCap, roles: ['ADMIN'] },

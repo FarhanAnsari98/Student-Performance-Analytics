@@ -1,0 +1,127 @@
+"use client";
+
+import React from 'react';
+import { useAuth } from '@/context/auth-context';
+import { useData } from '@/context/data-context';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Megaphone, MessageSquare } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+const getInitials = (name: string) => {
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[1][0]}`;
+    }
+    return name.substring(0, 2);
+};
+
+const announcementSchema = z.object({
+  content: z.string().min(10, { message: "Announcement must be at least 10 characters." }).max(500, { message: "Announcement must not exceed 500 characters." }),
+});
+
+export function CommunicationHub() {
+    const { user, role } = useAuth();
+    const { announcements, addAnnouncement } = useData();
+
+    const form = useForm<z.infer<typeof announcementSchema>>({
+        resolver: zodResolver(announcementSchema),
+        defaultValues: {
+            content: "",
+        },
+    });
+    
+    function onAnnouncementSubmit(values: z.infer<typeof announcementSchema>) {
+        if (!user || !role) return;
+        addAnnouncement(values.content, { id: user.id, name: user.name, role: role });
+        form.reset();
+    }
+    
+    const canAnnounce = role === 'ADMIN' || role === 'TEACHER';
+
+    return (
+        <Tabs defaultValue="announcements">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="announcements">
+                    <Megaphone className="mr-2 h-4 w-4" />
+                    Announcements
+                </TabsTrigger>
+                <TabsTrigger value="queries" disabled>
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Queries (Coming Soon)
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value="announcements">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Announcements</CardTitle>
+                        <CardDescription>
+                            {canAnnounce 
+                                ? "Post important updates for students, parents, and other staff."
+                                : "View important updates from school administration and teachers."}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {canAnnounce && (
+                            <Form {...form}>
+                                <form onSubmit={form.handleSubmit(onAnnouncementSubmit)} className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="content"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Textarea placeholder="Type your announcement here..." {...field} rows={3} />
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="flex justify-end">
+                                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                                            <Megaphone className="mr-2 h-4 w-4" />
+                                            Post Announcement
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
+                        )}
+                        <div className="space-y-4">
+                            {announcements.length > 0 ? announcements.map(announcement => (
+                                <div key={announcement.id} className="flex items-start gap-4 p-4 border rounded-lg">
+                                    <Avatar>
+                                        <AvatarImage />
+                                        <AvatarFallback>{getInitials(announcement.authorName)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex-grow">
+                                        <div className="flex items-center justify-between">
+                                            <p className="font-semibold">{announcement.authorName} <span className="text-xs font-normal text-muted-foreground">({announcement.authorRole})</span></p>
+                                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(announcement.date), { addSuffix: true })}</p>
+                                        </div>
+                                        <p className="text-sm text-foreground/90 mt-1">{announcement.content}</p>
+                                    </div>
+                                </div>
+                            )) : <p className="text-center text-muted-foreground">No announcements yet.</p>}
+                        </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="queries">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Ask a Query</CardTitle>
+                        <CardDescription>This feature is coming soon. You'll be able to ask questions and get answers from teachers and staff.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-center min-h-[200px]">
+                        <p className="text-muted-foreground">Stay tuned!</p>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+        </Tabs>
+    );
+}

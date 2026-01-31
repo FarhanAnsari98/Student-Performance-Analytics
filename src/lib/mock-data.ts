@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement } from '@/lib/types';
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -122,6 +122,25 @@ export const mockAssignments: Assignment[] = [
 ];
 
 export const mockAttendance: AttendanceRecord[] = [];
+
+export const mockAnnouncements: Announcement[] = [
+    {
+        id: 'ann-1',
+        authorId: 'user-admin',
+        authorName: 'Dr. Evelyn Reed',
+        authorRole: 'ADMIN',
+        content: 'Welcome to the new school year! Please make sure to check your schedules and report any issues to the front office.',
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: 'ann-2',
+        authorId: 'user-teacher-1',
+        authorName: 'Mr. David Chen',
+        authorRole: 'TEACHER',
+        content: 'Reminder: The mathematics midterm exam will be held next Friday. A study guide has been posted on the class portal.',
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    }
+];
 
 const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
 

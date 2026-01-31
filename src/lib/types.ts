@@ -77,3 +77,12 @@ export type AttendanceRecord = {
   date: string; // "yyyy-MM-dd" format
   status: AttendanceStatus;
 };
+
+export type Announcement = {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorRole: Role;
+  content: string;
+  date: string; // ISO string
+};
