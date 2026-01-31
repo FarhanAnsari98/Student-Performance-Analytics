@@ -131,6 +131,7 @@ export const mockAnnouncements: Announcement[] = [
         authorRole: 'ADMIN',
         content: 'Welcome to the new school year! Please make sure to check your schedules and report any issues to the front office.',
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        scope: 'public',
     },
     {
         id: 'ann-2',
@@ -139,6 +140,16 @@ export const mockAnnouncements: Announcement[] = [
         authorRole: 'TEACHER',
         content: 'Reminder: The mathematics midterm exam will be held next Friday. A study guide has been posted on the class portal.',
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        scope: 'public',
+    },
+    {
+        id: 'ann-3',
+        authorId: 'user-admin',
+        authorName: 'Dr. Evelyn Reed',
+        authorRole: 'ADMIN',
+        content: 'All faculty members are requested to attend the staff meeting this Wednesday at 3 PM in the conference room.',
+        date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+        scope: 'internal',
     }
 ];
 

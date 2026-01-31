@@ -21,7 +21,7 @@ interface DataContextType {
   updateTeacher: (teacherId: string, teacherData: { name: string }) => void;
   updateParent: (parentId: string, parentData: { name: string }) => void;
   saveAttendanceForClass: (records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => void;
-  addAnnouncement: (content: string, author: { id: string; name: string; role: Role }) => void;
+  addAnnouncement: (content: string, author: { id: string; name: string; role: Role }, scope: 'public' | 'internal') => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -162,7 +162,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
   
-  const addAnnouncement = useCallback((content: string, author: { id: string; name: string; role: Role }) => {
+  const addAnnouncement = useCallback((content: string, author: { id: string; name: string; role: Role }, scope: 'public' | 'internal') => {
     const newAnnouncement: Announcement = {
         id: `ann-${Date.now()}`,
         authorId: author.id,
@@ -170,6 +170,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         authorRole: author.role,
         content: content,
         date: new Date().toISOString(),
+        scope: scope,
     };
     setAnnouncements(prev => [newAnnouncement, ...prev]);
   }, []);

@@ -10,10 +10,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Megaphone, MessageSquare } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
+import { Megaphone, MessageSquare, ClipboardCheck } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Badge } from '@/components/ui/badge';
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -25,6 +27,7 @@ const getInitials = (name: string) => {
 
 const announcementSchema = z.object({
   content: z.string().min(10, { message: "Announcement must be at least 10 characters." }).max(500, { message: "Announcement must not exceed 500 characters." }),
+  scope: z.enum(['public', 'internal'], { required_error: 'Please select an audience.' }),
 });
 
 export function CommunicationHub() {
@@ -35,20 +38,28 @@ export function CommunicationHub() {
         resolver: zodResolver(announcementSchema),
         defaultValues: {
             content: "",
+            scope: 'public',
         },
     });
     
     function onAnnouncementSubmit(values: z.infer<typeof announcementSchema>) {
         if (!user || !role) return;
-        addAnnouncement(values.content, { id: user.id, name: user.name, role: role });
+        addAnnouncement(values.content, { id: user.id, name: user.name, role: role }, values.scope);
         form.reset();
     }
     
     const canAnnounce = role === 'ADMIN' || role === 'TEACHER';
+    const canViewInternal = role === 'ADMIN' || role === 'TEACHER';
+
+    const displayedAnnouncements = announcements.filter(a => {
+        if (a.scope === 'public') return true;
+        if (a.scope === 'internal' && canViewInternal) return true;
+        return false;
+    });
 
     return (
         <Tabs defaultValue="announcements">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="announcements">
                     <Megaphone className="mr-2 h-4 w-4" />
                     Announcements
@@ -56,6 +67,10 @@ export function CommunicationHub() {
                 <TabsTrigger value="queries" disabled>
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Queries (Coming Soon)
+                </TabsTrigger>
+                <TabsTrigger value="mock-tests" disabled>
+                    <ClipboardCheck className="mr-2 h-4 w-4" />
+                    Mock Tests (Coming Soon)
                 </TabsTrigger>
             </TabsList>
             <TabsContent value="announcements">
@@ -71,7 +86,7 @@ export function CommunicationHub() {
                     <CardContent className="space-y-6">
                         {canAnnounce && (
                             <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onAnnouncementSubmit)} className="space-y-4">
+                                <form onSubmit={form.handleSubmit(onAnnouncementSubmit)} className="space-y-4 border p-4 rounded-lg">
                                     <FormField
                                         control={form.control}
                                         name="content"
@@ -79,6 +94,40 @@ export function CommunicationHub() {
                                             <FormItem>
                                                 <Textarea placeholder="Type your announcement here..." {...field} rows={3} />
                                                 <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="scope"
+                                        render={({ field }) => (
+                                            <FormItem className="space-y-2">
+                                            <FormLabel>Audience</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                                className="flex items-center gap-4"
+                                                >
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl>
+                                                    <RadioGroupItem value="public" />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">
+                                                    Public
+                                                    </FormLabel>
+                                                </FormItem>
+                                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                                    <FormControl>
+                                                    <RadioGroupItem value="internal" />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">
+                                                    Internal (Staff only)
+                                                    </FormLabel>
+                                                </FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -92,7 +141,7 @@ export function CommunicationHub() {
                             </Form>
                         )}
                         <div className="space-y-4">
-                            {announcements.length > 0 ? announcements.map(announcement => (
+                            {displayedAnnouncements.length > 0 ? displayedAnnouncements.map(announcement => (
                                 <div key={announcement.id} className="flex items-start gap-4 p-4 border rounded-lg">
                                     <Avatar>
                                         <AvatarImage />
@@ -101,7 +150,12 @@ export function CommunicationHub() {
                                     <div className="flex-grow">
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold">{announcement.authorName} <span className="text-xs font-normal text-muted-foreground">({announcement.authorRole})</span></p>
-                                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(announcement.date), { addSuffix: true })}</p>
+                                            <div className='flex items-center gap-2'>
+                                                {announcement.scope === 'internal' && canViewInternal && (
+                                                    <Badge variant="outline">Internal</Badge>
+                                                )}
+                                                <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(announcement.date), { addSuffix: true })}</p>
+                                            </div>
                                         </div>
                                         <p className="text-sm text-foreground/90 mt-1">{announcement.content}</p>
                                     </div>
@@ -116,6 +170,17 @@ export function CommunicationHub() {
                     <CardHeader>
                         <CardTitle>Ask a Query</CardTitle>
                         <CardDescription>This feature is coming soon. You'll be able to ask questions and get answers from teachers and staff.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-center min-h-[200px]">
+                        <p className="text-muted-foreground">Stay tuned!</p>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+            <TabsContent value="mock-tests">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Mock Tests</CardTitle>
+                        <CardDescription>This feature is coming soon. You'll be able to create and assign mock tests to students.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex items-center justify-center min-h-[200px]">
                         <p className="text-muted-foreground">Stay tuned!</p>

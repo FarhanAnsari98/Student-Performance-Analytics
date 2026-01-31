@@ -85,4 +85,5 @@ export type Announcement = {
   authorRole: Role;
   content: string;
   date: string; // ISO string
+  scope: 'public' | 'internal';
 };
