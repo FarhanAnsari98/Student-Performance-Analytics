@@ -87,3 +87,12 @@ export type Announcement = {
   date: string; // ISO string
   scope: 'public' | 'internal';
 };
+
+export type Book = {
+  id: string;
+  title: string;
+  author: string;
+  coverUrl: string;
+  description: string;
+  category: string;
+};
