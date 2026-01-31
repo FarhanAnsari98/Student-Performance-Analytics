@@ -9,11 +9,23 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
 import { BookOpen } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import type { Book } from '@/lib/types';
+
 
 export default function LibraryPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [selectedBook, setSelectedBook] = React.useState<Book | null>(null);
 
   const categories = ['All', ...Array.from(new Set(mockBooks.map(book => book.category)))];
 
@@ -76,7 +88,7 @@ export default function LibraryPage() {
                     <p className="text-sm text-muted-foreground">{book.author}</p>
                   </CardContent>
                   <CardFooter className="p-4">
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => setSelectedBook(book)}>
                         <BookOpen className="mr-2 h-4 w-4" />
                         Read
                     </Button>
@@ -91,6 +103,22 @@ export default function LibraryPage() {
           )}
         </CardContent>
       </Card>
+      {selectedBook && (
+        <AlertDialog open={!!selectedBook} onOpenChange={(open) => !open && setSelectedBook(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>{selectedBook.title}</AlertDialogTitle>
+                    <AlertDialogDescription>by {selectedBook.author}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="text-sm text-muted-foreground py-4 max-h-[40vh] overflow-y-auto">
+                    {selectedBook.description}
+                </div>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Close</AlertDialogCancel>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
