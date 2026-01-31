@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -26,6 +26,7 @@ export default function LibraryPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
   const [selectedBook, setSelectedBook] = React.useState<Book | null>(null);
+  const [currentPage, setCurrentPage] = React.useState(0);
 
   const categories = ['All', ...Array.from(new Set(mockBooks.map(book => book.category)))];
 
@@ -34,6 +35,22 @@ export default function LibraryPage() {
     const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const handleSelectBook = (book: Book) => {
+    setSelectedBook(book);
+    setCurrentPage(0);
+  };
+
+  const charsPerPage = 1500;
+  const pages = React.useMemo(() => {
+    if (!selectedBook) return [];
+    const bookPages = [];
+    for (let i = 0; i < selectedBook.description.length; i += charsPerPage) {
+      bookPages.push(selectedBook.description.substring(i, i + charsPerPage));
+    }
+    if (bookPages.length === 0) bookPages.push(""); // Handle empty description
+    return bookPages;
+  }, [selectedBook]);
 
   return (
     <div className="space-y-8">
@@ -88,7 +105,7 @@ export default function LibraryPage() {
                     <p className="text-sm text-muted-foreground">{book.author}</p>
                   </CardContent>
                   <CardFooter className="p-4">
-                    <Button className="w-full" onClick={() => setSelectedBook(book)}>
+                    <Button className="w-full" onClick={() => handleSelectBook(book)}>
                         <BookOpen className="mr-2 h-4 w-4" />
                         Read
                     </Button>
@@ -105,16 +122,29 @@ export default function LibraryPage() {
       </Card>
       {selectedBook && (
         <AlertDialog open={!!selectedBook} onOpenChange={(open) => !open && setSelectedBook(null)}>
-            <AlertDialogContent>
+            <AlertDialogContent className="max-w-3xl">
                 <AlertDialogHeader>
                     <AlertDialogTitle>{selectedBook.title}</AlertDialogTitle>
                     <AlertDialogDescription>by {selectedBook.author}</AlertDialogDescription>
                 </AlertDialogHeader>
-                <div className="text-sm text-muted-foreground py-4 max-h-[40vh] overflow-y-auto">
-                    {selectedBook.description}
+                <div className="text-sm text-muted-foreground leading-relaxed py-4 h-[60vh] whitespace-pre-line overflow-hidden">
+                    {pages[currentPage]}
                 </div>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Close</AlertDialogCancel>
+                <AlertDialogFooter className="sm:justify-between items-center pt-4">
+                  <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage === 0}>
+                          <ChevronLeft className="h-4 w-4" />
+                          <span className="sr-only">Previous Page</span>
+                      </Button>
+                      <span className="text-sm text-muted-foreground font-medium">
+                          Page {currentPage + 1} of {pages.length}
+                      </span>
+                      <Button variant="outline" size="icon" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= pages.length - 1}>
+                          <ChevronRight className="h-4 w-4" />
+                          <span className="sr-only">Next Page</span>
+                      </Button>
+                  </div>
+                  <AlertDialogCancel>Close</AlertDialogCancel>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
