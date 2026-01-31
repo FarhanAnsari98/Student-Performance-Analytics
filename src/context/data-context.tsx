@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment, Subject, Class } from '@/lib/types';
-import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses } from '@/lib/mock-data';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus } from '@/lib/types';
+import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance } from '@/lib/mock-data';
 
 interface DataContextType {
   students: Student[];
@@ -10,6 +10,7 @@ interface DataContextType {
   teachers: Teacher[];
   subjects: Subject[];
   classes: Class[];
+  attendance: AttendanceRecord[];
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
@@ -18,6 +19,7 @@ interface DataContextType {
   updateStudent: (studentId: string, studentData: { name: string }) => void;
   updateTeacher: (teacherId: string, teacherData: { name: string }) => void;
   updateParent: (parentId: string, parentData: { name: string }) => void;
+  saveAttendanceForClass: (records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -31,6 +33,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [classes, setClasses] = useState<Class[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,6 +46,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setTeachers(parsedData.teachers || []);
         setSubjects(parsedData.subjects || []);
         setClasses(parsedData.classes || []);
+        setAttendance(parsedData.attendance || []);
       } else {
         // If no data, use mock and store it
         setStudents(mockStudents);
@@ -50,6 +54,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setTeachers(mockTeachers);
         setSubjects(mockSubjects);
         setClasses(mockClasses);
+        setAttendance(mockAttendance);
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -59,6 +64,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setTeachers(mockTeachers);
       setSubjects(mockSubjects);
       setClasses(mockClasses);
+      setAttendance(mockAttendance);
     } finally {
         setLoading(false);
     }
@@ -67,13 +73,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loading) {
       try {
-        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes });
+        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance });
         localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
       } catch (error) {
         console.error("Failed to save data to localStorage", error);
       }
     }
-  }, [students, parents, teachers, subjects, classes, loading]);
+  }, [students, parents, teachers, subjects, classes, attendance, loading]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
@@ -142,6 +148,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setParents(prev => prev.map(p => p.id === parentId ? { ...p, ...parentData } : p));
   }, []);
 
+  const saveAttendanceForClass = useCallback((records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => {
+    setAttendance(prevAttendance => {
+        const otherDayRecords = prevAttendance.filter(r => r.date !== date || r.classId !== classId);
+        const newRecordsForDay: AttendanceRecord[] = records.map(r => ({ ...r, classId, date }));
+        return [...otherDayRecords, ...newRecordsForDay];
+    });
+  }, []);
+
 
   const value = { 
     students, 
@@ -149,6 +163,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     teachers, 
     subjects, 
     classes, 
+    attendance,
     addStudent, 
     addTeacher, 
     addSubject, 
@@ -156,7 +171,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     getPendingAssignmentsForStudent,
     updateStudent,
     updateTeacher,
-    updateParent
+    updateParent,
+    saveAttendanceForClass
   };
   
   if (loading) {

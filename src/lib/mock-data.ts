@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord } from '@/lib/types';
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -120,6 +120,8 @@ export const mockAssignments: Assignment[] = [
     { id: `assign-${c.id}-2`, classId: c.id, title: `${mockSubjects.find(s => mockTeachers.find(t => t.id === c.teacherId)?.subject === s.name)?.name || 'General'} Quiz for ${c.name}`, dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const },
   ]))
 ];
+
+export const mockAttendance: AttendanceRecord[] = [];
 
 const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
 

@@ -68,3 +68,12 @@ export type NavItem = {
   icon: LucideIcon;
   roles: Role[];
 };
+
+export type AttendanceStatus = "PRESENT" | "ABSENT";
+
+export type AttendanceRecord = {
+  studentId: string;
+  classId: string;
+  date: string; // "yyyy-MM-dd" format
+  status: AttendanceStatus;
+};
