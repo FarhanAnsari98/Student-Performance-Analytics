@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore } from '@/lib/types';
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -77,6 +77,22 @@ grades.forEach(grade => {
             const studentEmail = `${studentFirstName.charAt(0).toLowerCase()}.${studentLastName.toLowerCase()}@atendalearn.edu`;
 
             const riskLevels: ("LOW" | "MEDIUM" | "HIGH")[] = ['LOW', 'MEDIUM', 'HIGH'];
+
+            const assignedSubjects: Subject[] = [];
+            const numSubjects = Math.floor(Math.random() * 3) + 4; // 4 to 6 subjects
+            const shuffledSubjects = [...mockSubjects].sort(() => 0.5 - Math.random());
+            for (let j = 0; j < numSubjects; j++) {
+                assignedSubjects.push(shuffledSubjects[j]);
+            }
+            
+            let totalScore = 0;
+            const scores: SubjectScore[] = assignedSubjects.map(subject => {
+                const score = 60 + Math.floor(Math.random() * 41); // score between 60 and 100
+                totalScore += score;
+                return { subject: subject.name, score };
+            });
+    
+            const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
             
             generatedStudents.push({
                 id: studentId,
@@ -85,7 +101,8 @@ grades.forEach(grade => {
                 avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
                 classId: classId,
                 attendancePercentage: 70 + Math.floor(Math.random() * 30),
-                averageScore: 60 + Math.floor(Math.random() * 40),
+                scores: scores,
+                averageScore: averageScore,
                 riskLevel: riskLevels[Math.floor(Math.random() * 3)],
                 parentId: parentId,
             });

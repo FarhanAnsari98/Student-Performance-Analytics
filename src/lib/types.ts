@@ -10,6 +10,11 @@ export type User = {
   avatarUrl: string;
 };
 
+export type SubjectScore = {
+  subject: string;
+  score: number;
+};
+
 export type Student = {
   id: string;
   name: string;
@@ -17,6 +22,7 @@ export type Student = {
   avatarUrl: string;
   classId: string;
   attendancePercentage: number;
+  scores: SubjectScore[];
   averageScore: number;
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
   parentId: string;
@@ -31,7 +37,7 @@ export type Parent = {
 };
 
 export type Teacher = {
-  id: string;
+  id:string;
   name: string;
   email: string;
   avatarUrl: string;

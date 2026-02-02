@@ -38,7 +38,6 @@ const formSchema = z.object({
     email: z.string().email({ message: "Please enter a valid email." }),
     classId: z.string({ required_error: "Please select a class." }),
     attendancePercentage: z.coerce.number().min(0).max(100),
-    averageScore: z.coerce.number().min(0).max(100),
 });
 
 export function AddStudentDialog() {
@@ -51,7 +50,6 @@ export function AddStudentDialog() {
             name: "",
             email: "",
             attendancePercentage: 100,
-            averageScore: 100,
         },
     });
 
@@ -124,34 +122,19 @@ export function AddStudentDialog() {
                             </FormItem>
                         )}
                     />
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="attendancePercentage"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Attendance (%)</FormLabel>
-                                <FormControl>
-                                    <Input type="number" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="averageScore"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Average Score (%)</FormLabel>
-                                <FormControl>
-                                    <Input type="number" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
+                    <FormField
+                        control={form.control}
+                        name="attendancePercentage"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Attendance (%)</FormLabel>
+                            <FormControl>
+                                <Input type="number" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <DialogFooter>
                         <Button type="submit">Add Student</Button>
                     </DialogFooter>

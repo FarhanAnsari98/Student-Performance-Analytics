@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role } from '@/lib/types';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore } from '@/lib/types';
 import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance, mockAnnouncements } from '@/lib/mock-data';
 
 interface DataContextType {
@@ -12,7 +12,7 @@ interface DataContextType {
   classes: Class[];
   attendance: AttendanceRecord[];
   announcements: Announcement[];
-  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => void;
+  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
@@ -87,9 +87,25 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [students, parents, teachers, subjects, classes, attendance, announcements, loading]);
 
-  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId'>) => {
+  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
     const newParentId = `parent-gen-${Date.now()}`;
+    
+    const assignedSubjects: Subject[] = [];
+    const numSubjects = 5;
+    const shuffledSubjects = [...subjects].sort(() => 0.5 - Math.random());
+    for (let j = 0; j < numSubjects && j < shuffledSubjects.length; j++) {
+        assignedSubjects.push(shuffledSubjects[j]);
+    }
+    
+    let totalScore = 0;
+    const scores: SubjectScore[] = assignedSubjects.map(subject => {
+        const score = 60 + Math.floor(Math.random() * 41);
+        totalScore += score;
+        return { subject: subject.name, score };
+    });
+
+    const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
 
     const newStudent: Student = {
       ...studentData,
@@ -97,6 +113,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       parentId: newParentId,
       avatarUrl: `https://picsum.photos/seed/${newStudentId}/200/200`,
       riskLevel: 'LOW',
+      scores,
+      averageScore,
     };
 
     const newParent: Parent = {
@@ -109,7 +127,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     setStudents(prev => [...prev, newStudent]);
     setParents(prev => [...prev, newParent]);
-  }, []);
+  }, [subjects]);
 
   const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'avatarUrl'>) => {
     const newTeacherId = `teacher-gen-${Date.now()}`;

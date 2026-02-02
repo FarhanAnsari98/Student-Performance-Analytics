@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookCopy, Clock, TrendingUp, Users } from "lucide-react";
 import { format } from 'date-fns';
 import { useData } from '@/context/data-context';
+import { SubjectPerformanceChart } from './subject-performance-chart';
 
 const riskVariantMap: { [key: string]: "default" | "secondary" | "destructive" } = {
   LOW: "default",
@@ -64,31 +65,42 @@ export function StudentDashboard() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Pending Assignments</CardTitle>
-          <CardDescription>Here are your upcoming tasks. Keep it up!</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {pendingAssignments.length > 0 ? (
-            <ul className="space-y-4">
-              {pendingAssignments.map(assignment => (
-                <li key={assignment.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-secondary">
-                  <BookCopy className="h-5 w-5 text-primary mt-1" />
-                  <div>
-                    <p className="font-semibold">{assignment.title}</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Due {format(new Date(assignment.dueDate), "PPP")}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-             <p>No pending assignments. Great job!</p>
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Pending Assignments</CardTitle>
+            <CardDescription>Here are your upcoming tasks. Keep it up!</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {pendingAssignments.length > 0 ? (
+              <ul className="space-y-4">
+                {pendingAssignments.map(assignment => (
+                  <li key={assignment.id} className="flex items-start gap-4 p-3 rounded-lg hover:bg-secondary">
+                    <BookCopy className="h-5 w-5 text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">{assignment.title}</p>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> Due {format(new Date(assignment.dueDate), "PPP")}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No pending assignments. Great job!</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline">Subject-wise Performance</CardTitle>
+                <CardDescription>Your scores across different subjects.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <SubjectPerformanceChart scores={student.scores} />
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
