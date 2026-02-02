@@ -11,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { BookCopy, Clock, TrendingUp, Users } from "lucide-react";
-import { format } from 'date-fns';
+import { BookCopy, Clock, TrendingUp, Users, MessageSquare } from "lucide-react";
+import { format, formatDistanceToNow } from 'date-fns';
 import { useData } from '@/context/data-context';
 import { SubjectPerformanceChart } from './subject-performance-chart';
 
@@ -162,6 +162,32 @@ export function ParentDashboard() {
                 </CardContent>
             </Card>
         </div>
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2">
+                    <MessageSquare className="h-6 w-6" />
+                    Teacher Remarks for {selectedChild.name}
+                </CardTitle>
+                <CardDescription>Feedback from your child's teachers.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {selectedChild.remarks && selectedChild.remarks.length > 0 ? (
+                    <ul className="space-y-4">
+                    {selectedChild.remarks.map((remark, index) => (
+                        <li key={index} className="flex flex-col gap-1 rounded-lg border p-4">
+                            <p className="text-sm text-foreground/90">{remark.content}</p>
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                <span>- {remark.teacherName}</span>
+                                <span>{formatDistanceToNow(new Date(remark.date), { addSuffix: true })}</span>
+                            </div>
+                        </li>
+                    ))}
+                    </ul>
+                ) : (
+                    <p className="text-muted-foreground">No remarks for {selectedChild.name} yet.</p>
+                )}
+            </CardContent>
+        </Card>
         </>
       )}
     </div>

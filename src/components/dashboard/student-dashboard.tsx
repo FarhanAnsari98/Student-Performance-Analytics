@@ -3,8 +3,8 @@ import React from 'react';
 import { useAuth } from "@/context/auth-context";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookCopy, Clock, TrendingUp, Users } from "lucide-react";
-import { format } from 'date-fns';
+import { BookCopy, Clock, TrendingUp, Users, MessageSquare } from "lucide-react";
+import { format, formatDistanceToNow } from 'date-fns';
 import { useData } from '@/context/data-context';
 import { SubjectPerformanceChart } from './subject-performance-chart';
 
@@ -24,6 +24,7 @@ export function StudentDashboard() {
   }
   
   const pendingAssignments = getPendingAssignmentsForStudent(student.id);
+  const { remarks } = student;
 
   return (
     <div className="space-y-8">
@@ -101,6 +102,32 @@ export function StudentDashboard() {
             </CardContent>
         </Card>
       </div>
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+                <MessageSquare className="h-6 w-6" />
+                Teacher Remarks
+            </CardTitle>
+            <CardDescription>Feedback from your teachers.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            {remarks && remarks.length > 0 ? (
+                <ul className="space-y-4">
+                {remarks.map((remark, index) => (
+                    <li key={index} className="flex flex-col gap-1 rounded-lg border p-4">
+                        <p className="text-sm text-foreground/90">{remark.content}</p>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>- {remark.teacherName}</span>
+                            <span>{formatDistanceToNow(new Date(remark.date), { addSuffix: true })}</span>
+                        </div>
+                    </li>
+                ))}
+                </ul>
+            ) : (
+                <p className="text-muted-foreground">No remarks from teachers yet.</p>
+            )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

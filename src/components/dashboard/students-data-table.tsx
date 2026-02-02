@@ -27,10 +27,11 @@ import type { Student } from "@/lib/types"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Badge } from "../ui/badge"
 import { useData } from "@/context/data-context"
-import { MoreHorizontal, Pencil } from "lucide-react"
+import { MoreHorizontal, Pencil, MessageSquarePlus } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/context/auth-context"
 import { EditStudentDialog } from "./edit-student-dialog"
+import { AddRemarkDialog } from "./add-remark-dialog"
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -54,6 +55,7 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
   const { parents } = useData();
   const { role } = useAuth();
   const [editingStudent, setEditingStudent] = React.useState<Student | null>(null);
+  const [remarkingStudent, setRemarkingStudent] = React.useState<Student | null>(null);
 
   const columns = React.useMemo<ColumnDef<Student>[]>(() => {
     const baseColumns: ColumnDef<Student>[] = [
@@ -105,7 +107,7 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
         },
       ];
 
-      if (role === 'ADMIN') {
+      if (role === 'ADMIN' || role === 'TEACHER') {
         baseColumns.push({
             id: "actions",
             cell: ({ row }) => {
@@ -122,10 +124,18 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem onClick={() => setEditingStudent(student)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit Name
-                        </DropdownMenuItem>
+                        {role === 'ADMIN' && (
+                            <DropdownMenuItem onClick={() => setEditingStudent(student)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit Name
+                            </DropdownMenuItem>
+                        )}
+                        {role === 'TEACHER' && (
+                            <DropdownMenuItem onClick={() => setRemarkingStudent(student)}>
+                                <MessageSquarePlus className="mr-2 h-4 w-4" />
+                                Add Remark
+                            </DropdownMenuItem>
+                        )}
                     </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -249,6 +259,13 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
             student={editingStudent}
             open={!!editingStudent}
             onOpenChange={(open) => !open && setEditingStudent(null)}
+        />
+      )}
+      {remarkingStudent && (
+        <AddRemarkDialog
+            student={remarkingStudent}
+            open={!!remarkingStudent}
+            onOpenChange={(open) => !open && setRemarkingStudent(null)}
         />
       )}
     </div>

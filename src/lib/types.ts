@@ -15,6 +15,12 @@ export type SubjectScore = {
   score: number;
 };
 
+export type Remark = {
+  content: string;
+  teacherName: string;
+  date: string; // ISO string
+};
+
 export type Student = {
   id: string;
   name: string;
@@ -26,6 +32,7 @@ export type Student = {
   averageScore: number;
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
   parentId: string;
+  remarks?: Remark[];
 };
 
 export type Parent = {
