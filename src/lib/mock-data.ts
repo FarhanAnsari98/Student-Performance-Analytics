@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore, Query } from '@/lib/types';
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -167,6 +167,31 @@ export const mockAnnouncements: Announcement[] = [
         content: 'All faculty members are requested to attend the staff meeting this Wednesday at 3 PM in the conference room.',
         date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
         scope: 'internal',
+    }
+];
+
+export const mockQueries: Query[] = [
+    {
+        id: 'query-1',
+        studentId: mockStudents[0].id,
+        authorId: `user-${mockParents[0].id}`,
+        authorName: mockParents[0].name,
+        teacherId: mockClasses.find(c => c.id === mockStudents[0].classId)!.teacherId,
+        teacherName: mockTeachers.find(t => t.id === mockClasses.find(c => c.id === mockStudents[0].classId)!.teacherId)!.name,
+        question: `What can we do to improve ${mockStudents[0].name}'s performance in Mathematics?`,
+        questionDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        answer: `Hi, thanks for reaching out. ${mockStudents[0].name} can focus on the extra worksheets I've shared. We can also schedule a meeting to discuss this further.`,
+        answerDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+        id: 'query-2',
+        studentId: mockStudents[1].id,
+        authorId: `user-${mockStudents[1].id}`,
+        authorName: mockStudents[1].name,
+        teacherId: mockClasses.find(c => c.id === mockStudents[1].classId)!.teacherId,
+        teacherName: mockTeachers.find(t => t.id === mockClasses.find(c => c.id === mockStudents[1].classId)!.teacherId)!.name,
+        question: 'I am having trouble with the latest algebra homework. Can I get some help?',
+        questionDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     }
 ];
 

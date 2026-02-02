@@ -16,6 +16,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
+import { QueriesTab } from './queries-tab';
+import { MockTestsTab } from './mock-tests-tab';
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -64,13 +66,13 @@ export function CommunicationHub() {
                     <Megaphone className="mr-2 h-4 w-4" />
                     Announcements
                 </TabsTrigger>
-                <TabsTrigger value="queries" disabled>
+                <TabsTrigger value="queries">
                     <MessageSquare className="mr-2 h-4 w-4" />
-                    Queries (Coming Soon)
+                    Queries
                 </TabsTrigger>
-                <TabsTrigger value="mock-tests" disabled>
+                <TabsTrigger value="mock-tests">
                     <ClipboardCheck className="mr-2 h-4 w-4" />
-                    Mock Tests (Coming Soon)
+                    Mock Tests
                 </TabsTrigger>
             </TabsList>
             <TabsContent value="announcements">
@@ -166,26 +168,10 @@ export function CommunicationHub() {
                 </Card>
             </TabsContent>
             <TabsContent value="queries">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Ask a Query</CardTitle>
-                        <CardDescription>This feature is coming soon. You'll be able to ask questions and get answers from teachers and staff.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex items-center justify-center min-h-[200px]">
-                        <p className="text-muted-foreground">Stay tuned!</p>
-                    </CardContent>
-                </Card>
+                <QueriesTab />
             </TabsContent>
             <TabsContent value="mock-tests">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Mock Tests</CardTitle>
-                        <CardDescription>This feature is coming soon. You'll be able to create and assign mock tests to students.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex items-center justify-center min-h-[200px]">
-                        <p className="text-muted-foreground">Stay tuned!</p>
-                    </CardContent>
-                </Card>
+                <MockTestsTab />
             </TabsContent>
         </Tabs>
     );

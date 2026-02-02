@@ -109,3 +109,16 @@ export type Book = {
   description: string;
   category: string;
 };
+
+export type Query = {
+  id: string;
+  studentId: string;
+  authorId: string; // user id of student or parent
+  authorName: string;
+  teacherId: string;
+  teacherName: string;
+  question: string;
+  answer?: string;
+  questionDate: string; // ISO string
+  answerDate?: string; // ISO string
+};
