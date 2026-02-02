@@ -122,3 +122,9 @@ export type Query = {
   questionDate: string; // ISO string
   answerDate?: string; // ISO string
 };
+
+export type QuizQuestion = {
+  questionText: string;
+  options: string[];
+  correctAnswer: string;
+};
