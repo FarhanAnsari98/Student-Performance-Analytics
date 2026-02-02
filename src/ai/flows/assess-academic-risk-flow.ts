@@ -36,6 +36,7 @@ export async function assessAcademicRisk(input: AssessAcademicRiskInput): Promis
 
 const prompt = ai.definePrompt({
   name: 'assessAcademicRiskPrompt',
+  model: 'googleai/gemini-1.5-flash-latest',
   input: {schema: AssessAcademicRiskInputSchema},
   output: {schema: AssessAcademicRiskOutputSchema},
   prompt: `You are an AI assistant that assesses the academic risk level of students.
