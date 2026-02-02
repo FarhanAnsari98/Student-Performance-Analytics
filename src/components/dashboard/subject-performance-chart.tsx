@@ -17,6 +17,14 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function SubjectPerformanceChart({ scores }: SubjectPerformanceChartProps) {
+    if (!scores || scores.length === 0) {
+        return (
+            <div className="flex items-center justify-center mx-auto aspect-square max-h-[350px] text-muted-foreground">
+                No score data available.
+            </div>
+        );
+    }
+
     const chartData = scores.map(s => ({
         subject: s.subject.split(" ").slice(0,2).join(" "),
         score: s.score,
