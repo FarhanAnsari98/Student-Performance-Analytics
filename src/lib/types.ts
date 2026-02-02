@@ -128,3 +128,11 @@ export type QuizQuestion = {
   options: string[];
   correctAnswer: string;
 };
+
+export type ManualQuiz = {
+  id: string;
+  title: string;
+  subject: string;
+  questions: QuizQuestion[];
+  createdBy: string; // teacherId
+};

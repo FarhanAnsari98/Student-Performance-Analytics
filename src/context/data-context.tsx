@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore, Remark, Query } from '@/lib/types';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore, Remark, Query, ManualQuiz } from '@/lib/types';
 import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance, mockAnnouncements, mockQueries } from '@/lib/mock-data';
 
 interface DataContextType {
@@ -13,6 +13,7 @@ interface DataContextType {
   attendance: AttendanceRecord[];
   announcements: Announcement[];
   queries: Query[];
+  manualQuizzes: ManualQuiz[];
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
@@ -26,6 +27,7 @@ interface DataContextType {
   addRemarkToStudent: (studentId: string, remarkContent: string, teacherName: string) => void;
   addQuery: (question: string, studentId: string, teacherId: string, author: { id: string; name: string; }) => void;
   answerQuery: (queryId: string, answer: string) => void;
+  addManualQuiz: (quiz: Omit<ManualQuiz, 'id'>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -42,6 +44,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [queries, setQueries] = useState<Query[]>([]);
+  const [manualQuizzes, setManualQuizzes] = useState<ManualQuiz[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,6 +62,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setAttendance(parsedData.attendance || []);
         setAnnouncements(parsedData.announcements || []);
         setQueries(parsedData.queries || []);
+        setManualQuizzes(parsedData.manualQuizzes || []);
       } else {
         // If no data, use mock and store it
         setStudents(mockStudents.map(mapWithRemarks));
@@ -69,6 +73,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setAttendance(mockAttendance);
         setAnnouncements(mockAnnouncements);
         setQueries(mockQueries);
+        setManualQuizzes([]);
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
@@ -82,6 +87,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setAttendance(mockAttendance);
       setAnnouncements(mockAnnouncements);
       setQueries(mockQueries);
+      setManualQuizzes([]);
     } finally {
         setLoading(false);
     }
@@ -90,13 +96,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!loading) {
       try {
-        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance, announcements, queries });
+        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes });
         localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
       } catch (error) {
         console.error("Failed to save data to localStorage", error);
       }
     }
-  }, [students, parents, teachers, subjects, classes, attendance, announcements, queries, loading]);
+  }, [students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes, loading]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
@@ -245,6 +251,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     ));
   }, []);
 
+  const addManualQuiz = useCallback((quiz: Omit<ManualQuiz, 'id'>) => {
+    const newQuiz: ManualQuiz = {
+        ...quiz,
+        id: `quiz-${Date.now()}`
+    };
+    setManualQuizzes(prev => [newQuiz, ...prev]);
+  }, []);
+
   const value = { 
     students, 
     parents, 
@@ -254,6 +268,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     attendance,
     announcements,
     queries,
+    manualQuizzes,
     addStudent, 
     addTeacher, 
     addSubject, 
@@ -267,6 +282,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addRemarkToStudent,
     addQuery,
     answerQuery,
+    addManualQuiz,
   };
   
   if (loading) {
