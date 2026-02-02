@@ -16,7 +16,7 @@ import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
-import type { QuizQuestion, ManualQuiz } from '@/lib/types';
+import type { ManualQuiz } from '@/lib/types';
 
 const questionSchema = z.object({
   questionText: z.string().min(10, { message: 'Question must be at least 10 characters.'}),

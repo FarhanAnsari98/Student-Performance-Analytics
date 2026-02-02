@@ -1,4 +1,3 @@
-// AssessAcademicRiskWithLLM
 'use server';
 /**
  * @fileOverview Assesses a student's academic risk level using an LLM, combining performance data with pending assignments.
@@ -10,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const AssessAcademicRiskInputSchema = z.object({
   attendancePercentage: z
