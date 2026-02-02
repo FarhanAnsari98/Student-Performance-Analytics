@@ -16,7 +16,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '../ui/separator';
 import { Send, Check, MailQuestion } from 'lucide-react';
-import type { Student, Query } from '@/lib/types';
+import type { Student, Query } from "@/lib/types";
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
