@@ -1,4 +1,4 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore, Query, StudentStatus } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore, Query, ManualQuiz, StudentStatus } from '@/lib/types';
 import { subYears, formatISO } from 'date-fns';
 
 
@@ -173,7 +173,7 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
     historicalStudents.push({
         id: studentId,
         name: studentName,
-        email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}.hist@atendalearn.edu`,
+        email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}${admissionYear}@atendalearn.edu`,
         avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
         classId: 'class-null',
         attendancePercentage: 80 + Math.floor(Math.random() * 20),
@@ -189,8 +189,8 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
 
     generatedParents.push({
         id: parentId,
-        name: `${studentFirstName}'s Parent (Hist)`,
-        email: `parent.hist.${studentLastName.toLowerCase()}@email.com`,
+        name: `${studentFirstName}'s Parent`,
+        email: `parent.${studentLastName.toLowerCase()}${admissionYear}@email.com`,
         avatarUrl: `https://picsum.photos/seed/${parentId}/200`,
         childIds: [studentId],
     });
