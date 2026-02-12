@@ -31,23 +31,18 @@ let studentIdCounter = 1;
 let parentIdCounter = 1;
 
 const teacherNames = [
-    'Mr. David Chen', 'Ms. Sarah Lee', 'Dr. Alan Turing', 'Ms. Jane Austen', 'Mr. Herodotus', 'Dr. Marie Curie',
-    'Mr. Lavoisier', 'Ms. Frida Kahlo', 'Mr. Mozart', 'Mr. Jesse Owens', 'Ms. Amelia Earhart', 'Mr. Isaac Newton',
-    'Ms. Ada Lovelace', 'Mr. Nikola Tesla', 'Ms. Rosalind Franklin', 'Mr. Galileo Galilei', 'Ms. Rachel Carson', 'Mr. Leonardo da Vinci',
-    'Ms. Maya Angelou', 'Mr. Albert Einstein', 'Ms. Grace Hopper', 'Mr. Carl Sagan', 'Ms. Dorothy Vaughan', 'Mr. Euclid'
+    'Mr. Rajesh Sharma', 'Ms. Priya Gupta', 'Dr. Rohan Patel', 'Ms. Anjali Singh', 'Mr. Vikram Kumar', 'Dr. Sunita Reddy',
+    'Ms. Meera Desai', 'Mr. Alok Joshi', 'Ms. Lakshmi Iyer', 'Mr. Suresh Menon', 'Ms. Fatima Khan', 'Mr. Deepak Biswas',
+    'Ms. Kavita Rao', 'Mr. Sandeep Malhotra', 'Ms. Geeta Chopra', 'Mr. Prakash Nair', 'Ms. Divya Mehta', 'Mr. Arun Verma',
+    'Ms. Nisha Das', 'Mr. Harish Shah', 'Ms. Pooja Mishra', 'Mr. Jayesh Pandey', 'Ms. Rekha Bose', 'Mr. Vinod Deshpande'
 ];
 
-const studentNamePool = [
-    'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
-    'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin',
-    'Lee', 'Perez', 'Thompson', 'White', 'Harris', 'Sanchez', 'Clark', 'Lewis', 'Robinson', 'Walker',
-    'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green',
-    'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts', 'Gomez'
+const studentFemaleFirstNames = ['Saanvi', 'Aadhya', 'Ananya', 'Diya', 'Pari', 'Kiara', 'Ira', 'Myra', 'Amaira', 'Avni', 'Riya', 'Siya'];
+const studentMaleFirstNames = ['Aarav', 'Vihaan', 'Aditya', 'Sai', 'Arjun', 'Reyansh', 'Krishna', 'Ishaan', 'Rohan', 'Advik', 'Kabir', 'Aryan'];
+const studentLastNames = [
+    'Sharma', 'Verma', 'Gupta', 'Singh', 'Kumar', 'Patel', 'Reddy', 'Jain', 'Das', 'Mehta', 'Shah', 'Khan', 'Yadav',
+    'Mishra', 'Pandey', 'Rao', 'Deshpande', 'Chopra', 'Malhotra', 'Bose', 'Nair', 'Iyer', 'Joshi', 'Menon'
 ];
-const studentFirstNames = [
-    'James', 'Mary', 'John', 'Patricia', 'Robert', 'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth',
-    'David', 'Barbara', 'Richard', 'Susan', 'Joseph', 'Jessica', 'Thomas', 'Sarah', 'Charles', 'Karen'
-]
 
 
 grades.forEach(grade => {
@@ -57,7 +52,7 @@ grades.forEach(grade => {
         
         const teacherId = `teacher-${teacherIdCounter}`;
         const teacherName = teacherNames[teacherIdCounter - 1];
-        const teacherEmail = `${teacherName.split(' ').join('.').toLowerCase()}@atendalearn.edu`;
+        const teacherEmail = `${teacherName.replace('Mr. ', '').replace('Ms. ', '').replace('Dr. ', '').split(' ').join('.').toLowerCase()}@atendalearn.edu`;
         generatedTeachers.push({
             id: teacherId,
             name: teacherName,
@@ -73,10 +68,11 @@ grades.forEach(grade => {
             const parentId = `parent-${parentIdCounter++}`;
             studentIds.push(studentId);
 
-            const studentFirstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
-            const studentLastName = studentNamePool[Math.floor(Math.random() * studentNamePool.length)];
+            const isFemale = Math.random() > 0.5;
+            const studentFirstName = isFemale ? studentFemaleFirstNames[Math.floor(Math.random() * studentFemaleFirstNames.length)] : studentMaleFirstNames[Math.floor(Math.random() * studentMaleFirstNames.length)];
+            const studentLastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
             const studentName = `${studentFirstName} ${studentLastName}`;
-            const studentEmail = `${studentFirstName.charAt(0).toLowerCase()}.${studentLastName.toLowerCase()}@atendalearn.edu`;
+            const studentEmail = `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}@atendalearn.edu`;
 
             const riskLevels: ("LOW" | "MEDIUM" | "HIGH")[] = ['LOW', 'MEDIUM', 'HIGH'];
 
@@ -96,6 +92,10 @@ grades.forEach(grade => {
     
             const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
             
+            // Realistic admission date based on grade
+            const yearsInSchool = grade - 1;
+            const admissionDate = subYears(new Date(), yearsInSchool + Math.random()); // Add randomness within the year
+            
             generatedStudents.push({
                 id: studentId,
                 name: studentName,
@@ -108,7 +108,7 @@ grades.forEach(grade => {
                 riskLevel: riskLevels[Math.floor(Math.random() * 3)],
                 parentId: parentId,
                 status: 'ACTIVE',
-                admissionDate: subYears(new Date(), Math.min(grade -1, 5)).toISOString(), // Admitted in the past based on grade
+                admissionDate: admissionDate.toISOString(),
             });
 
             generatedParents.push({
@@ -129,30 +129,45 @@ grades.forEach(grade => {
     });
 });
 
-// Generate some historical data
+// Generate historical data (Alumni and Former Students)
 const historicalStudents: Student[] = [];
 const currentYear = new Date().getFullYear();
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 40; i++) { // Increased number of historical records
     const studentId = `student-hist-${i}`;
     const parentId = `parent-hist-${i}`;
-    const admissionYear = currentYear - (Math.floor(Math.random() * 5) + 4); // Admitted 4-8 years ago
+    
+    // Admission 3 to 10 years ago
+    const admissionYear = currentYear - (Math.floor(Math.random() * 8) + 3);
+    const admissionDate = formatISO(new Date(admissionYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
     
     let status: StudentStatus;
     let graduationYear: number | undefined;
     let terminationDate: string | undefined;
 
     const rand = Math.random();
-    if (rand < 0.7) { // Graduated
+    if (rand < 0.7) { // 70% are alumni
         status = 'GRADUATED';
-        graduationYear = admissionYear + 4; // Assuming a 4 year course for simplicity
-    } else { // Terminated
+        // Assume they studied for 12 years from Grade 1, or graduated earlier
+        const gradesStudied = Math.floor(Math.random() * 5) + 8; // Studied for 8-12 years
+        graduationYear = admissionYear + gradesStudied;
+        if (graduationYear > currentYear) {
+            graduationYear = currentYear; // Cap at current year
+        }
+    } else { // 30% left mid-session
         status = 'TERMINATED';
-        const terminationYear = admissionYear + Math.floor(Math.random() * 3) + 1; // Terminated after 1-3 years
-        terminationDate = formatISO(new Date(terminationYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
+        const yearsStudied = Math.floor(Math.random() * 10) + 1; // Left after 1-11 years
+        const termYear = admissionYear + yearsStudied;
+        if (termYear < currentYear) {
+            terminationDate = formatISO(new Date(termYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
+        } else {
+            // If termination is in future, make them an active student who will drop out soon (edge case)
+            status = 'ACTIVE';
+        }
     }
 
-    const studentFirstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
-    const studentLastName = studentNamePool[Math.floor(Math.random() * studentNamePool.length)];
+    const isFemale = Math.random() > 0.5;
+    const studentFirstName = isFemale ? studentFemaleFirstNames[Math.floor(Math.random() * studentFemaleFirstNames.length)] : studentMaleFirstNames[Math.floor(Math.random() * studentMaleFirstNames.length)];
+    const studentLastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
     const studentName = `${studentFirstName} ${studentLastName}`;
 
     historicalStudents.push({
@@ -160,14 +175,14 @@ for (let i = 0; i < 20; i++) {
         name: studentName,
         email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}.hist@atendalearn.edu`,
         avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
-        classId: 'class-null', // Not in a current class
+        classId: 'class-null',
         attendancePercentage: 80 + Math.floor(Math.random() * 20),
-        scores: [], // No scores for historical students for simplicity
+        scores: [],
         averageScore: 80 + Math.floor(Math.random() * 20),
         riskLevel: 'LOW',
         parentId: parentId,
         status: status,
-        admissionDate: formatISO(new Date(admissionYear, 8, 1)),
+        admissionDate: admissionDate,
         graduationYear,
         terminationDate,
     });
@@ -203,7 +218,7 @@ export const mockAnnouncements: Announcement[] = [
     {
         id: 'ann-1',
         authorId: 'user-admin',
-        authorName: 'Dr. Evelyn Reed',
+        authorName: 'Dr. Mehra',
         authorRole: 'ADMIN',
         content: 'Welcome to the new school year! Please make sure to check your schedules and report any issues to the front office.',
         date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -212,7 +227,7 @@ export const mockAnnouncements: Announcement[] = [
     {
         id: 'ann-2',
         authorId: 'user-teacher-1',
-        authorName: 'Mr. David Chen',
+        authorName: 'Mr. Rajesh Sharma',
         authorRole: 'TEACHER',
         content: 'Reminder: The mathematics midterm exam will be held next Friday. A study guide has been posted on the class portal.',
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
@@ -221,7 +236,7 @@ export const mockAnnouncements: Announcement[] = [
     {
         id: 'ann-3',
         authorId: 'user-admin',
-        authorName: 'Dr. Evelyn Reed',
+        authorName: 'Dr. Mehra',
         authorRole: 'ADMIN',
         content: 'All faculty members are requested to attend the staff meeting this Wednesday at 3 PM in the conference room.',
         date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
@@ -254,7 +269,7 @@ export const mockQueries: Query[] = [
     }
 ];
 
-const adminUser: User = { id: 'user-admin', name: 'Dr. Evelyn Reed', email: 'e.reed@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
+const adminUser: User = { id: 'user-admin', name: 'Dr. Mehra', email: 'mehra.admin@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
 
 export const mockCredentials: User[] = [
   adminUser,
