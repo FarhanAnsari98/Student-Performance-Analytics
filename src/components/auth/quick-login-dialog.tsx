@@ -38,7 +38,7 @@ export function QuickLoginDialog({ role, open, onOpenChange }: QuickLoginDialogP
     const { login } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
-    const { students, teachers, parents } = useData();
+    const { students, teachers, parents, classes } = useData();
     const [searchTerm, setSearchTerm] = React.useState("");
 
     const users: (Student | Teacher | Parent)[] = React.useMemo(() => {
@@ -64,6 +64,37 @@ export function QuickLoginDialog({ role, open, onOpenChange }: QuickLoginDialogP
             });
             router.push("/dashboard");
             onOpenChange(false);
+        }
+    };
+
+    const getUserDescription = (user: Student | Teacher | Parent) => {
+        switch (role) {
+            case 'TEACHER': {
+                const teacher = user as Teacher;
+                const assignedClasses = classes.filter(c => c.teacherId === teacher.id).map(c => c.name.replace('Grade ','').replace(' - Section', ''));
+                return `${teacher.subject}${assignedClasses.length > 0 ? ` (${assignedClasses.join(', ')})` : ''}`;
+            }
+            case 'STUDENT': {
+                const student = user as Student;
+                const studentClass = classes.find(c => c.id === student.classId);
+                return studentClass?.name || 'No Class';
+            }
+            case 'PARENT': {
+                const parent = user as Parent;
+                const childrenDetails = parent.childIds.map(id => {
+                    const student = students.find(s => s.id === id);
+                    if (!student) return null;
+                    const studentClass = classes.find(c => c.id === student.classId);
+                    return `${student.name} (${studentClass?.name || 'No Class'})`;
+                }).filter(Boolean);
+
+                if (childrenDetails.length > 0) {
+                    return `Parent of ${childrenDetails.join(', ')}`;
+                }
+                return 'No children assigned';
+            }
+            default:
+                return user.email;
         }
     };
     
@@ -95,7 +126,7 @@ export function QuickLoginDialog({ role, open, onOpenChange }: QuickLoginDialogP
                                     </Avatar>
                                     <div className="ml-3 text-left">
                                         <div className="font-medium">{user.name}</div>
-                                        <div className="text-xs text-muted-foreground">{user.email}</div>
+                                        <div className="text-xs text-muted-foreground">{getUserDescription(user)}</div>
                                     </div>
                                 </Button>
                             ))}
