@@ -92,8 +92,8 @@ grades.forEach(grade => {
     
             const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
             
-            // Realistic admission date based on grade
-            const yearsInSchool = grade - 1;
+            const admissionGrade = Math.floor(Math.random() * grade) + 1; // Cannot be admitted to a grade higher than current
+            const yearsInSchool = grade - admissionGrade;
             const admissionDate = subYears(new Date(), yearsInSchool + Math.random()); // Add randomness within the year
             
             generatedStudents.push({
@@ -109,6 +109,7 @@ grades.forEach(grade => {
                 parentId: parentId,
                 status: 'ACTIVE',
                 admissionDate: admissionDate.toISOString(),
+                admissionGrade: admissionGrade,
             });
 
             generatedParents.push({
@@ -132,14 +133,14 @@ grades.forEach(grade => {
 // Generate historical data (Alumni and Former Students)
 const historicalStudents: Student[] = [];
 const currentYear = new Date().getFullYear();
-for (let i = 0; i < 40; i++) { // Increased number of historical records
+for (let i = 0; i < 40; i++) {
     const studentId = `student-hist-${i}`;
     const parentId = `parent-hist-${i}`;
     
-    // Admission 5 to 40 years ago
     const admissionYear = currentYear - (Math.floor(Math.random() * 35) + 5);
     const admissionDate = formatISO(new Date(admissionYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
-    
+    const admissionGrade = Math.floor(Math.random() * 8) + 1; // Admit between grade 1 and 8 to make graduation plausible
+
     let status: StudentStatus;
     let graduationYear: number | undefined;
     let terminationDate: string | undefined;
@@ -147,21 +148,21 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
     const rand = Math.random();
     if (rand < 0.7) { // 70% are alumni
         status = 'GRADUATED';
-        // Assume they studied for 12 years from Grade 1, or graduated earlier
-        const gradesStudied = Math.floor(Math.random() * 5) + 8; // Studied for 8-12 years
-        graduationYear = admissionYear + gradesStudied;
+        const gradesToStudy = 12 - admissionGrade;
+        const yearsStudied = gradesToStudy + Math.floor(Math.random() * 3) - 1; // some variation
+        graduationYear = admissionYear + yearsStudied;
         if (graduationYear > currentYear) {
-            graduationYear = currentYear; // Cap at current year
+            graduationYear = currentYear;
         }
     } else { // 30% left mid-session
         status = 'TERMINATED';
-        const yearsStudied = Math.floor(Math.random() * 10) + 1; // Left after 1-11 years
+        const gradesToStudy = 12 - admissionGrade;
+        const yearsStudied = Math.floor(Math.random() * gradesToStudy) + 1; 
         const termYear = admissionYear + yearsStudied;
         if (termYear < currentYear) {
             terminationDate = formatISO(new Date(termYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
         } else {
-            // If termination is in future, make them an active student who will drop out soon (edge case)
-            status = 'ACTIVE';
+            status = 'ACTIVE'; // Edge case, make them active for now
         }
     }
 
@@ -183,6 +184,7 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
         parentId: parentId,
         status: status,
         admissionDate: admissionDate,
+        admissionGrade: admissionGrade,
         graduationYear,
         terminationDate,
     });

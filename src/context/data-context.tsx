@@ -14,7 +14,7 @@ interface DataContextType {
   announcements: Announcement[];
   queries: Query[];
   manualQuizzes: ManualQuiz[];
-  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'graduationYear' | 'terminationDate'>) => void;
+  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
@@ -32,7 +32,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v6';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v11';
 
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -49,7 +49,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.removeItem('atendalearn-data-v5');
+      localStorage.removeItem('atendalearn-data-v10');
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString() });
 
@@ -105,7 +105,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes, loading]);
 
-  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'graduationYear' | 'terminationDate'>) => {
+  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
     const newParentId = `parent-gen-${Date.now()}`;
     
@@ -136,6 +136,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       remarks: [],
       status: 'ACTIVE',
       admissionDate: new Date().toISOString(),
+      admissionGrade: 1,
     };
 
     const newParent: Parent = {

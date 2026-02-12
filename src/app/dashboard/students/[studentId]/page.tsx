@@ -70,7 +70,12 @@ export default function StudentProfilePage() {
             <div>
                 <h1 className="text-4xl font-bold font-headline">{student.name}</h1>
                 <div className="flex items-center gap-4 mt-2 text-muted-foreground">
-                   <span>{studentClass?.name || 'No Class Assigned'}</span>
+                   <span>
+                    {student.status === 'ACTIVE' 
+                        ? (studentClass?.name || 'No Class Assigned')
+                        : (student.admissionGrade ? `Admitted in Grade ${student.admissionGrade}` : 'No Class Assigned')
+                    }
+                   </span>
                    <Badge variant={statusVariantMap[student.status]}>{student.status}</Badge>
                 </div>
             </div>
@@ -134,6 +139,7 @@ export default function StudentProfilePage() {
                         <Calendar className="h-5 w-5 mr-3 text-muted-foreground" />
                         <div>
                             <strong>Admission Date:</strong> {format(new Date(student.admissionDate), "PPP")}
+                            {student.admissionGrade && ` (in Grade ${student.admissionGrade})`}
                         </div>
                     </div>
                     {student.status === 'GRADUATED' && student.graduationYear && (

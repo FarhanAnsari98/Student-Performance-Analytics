@@ -37,6 +37,7 @@ export type Student = {
   remarks?: Remark[];
   status: StudentStatus;
   admissionDate: string; // ISO string
+  admissionGrade?: number;
   graduationYear?: number;
   terminationDate?: string; // ISO string
 };
