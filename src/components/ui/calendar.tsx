@@ -62,10 +62,11 @@ function Calendar({
       footer={
         <div className="text-center pt-2 border-t mt-2">
             <button
+              type="button"
               onClick={() => props.onSelect?.(today, today, {}, {} as any)}
               className={cn(buttonVariants({ variant: "link" }), "text-sm text-muted-foreground uppercase")}
             >
-              Today {today.getDate()}
+              Today
             </button>
         </div>
       }

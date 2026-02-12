@@ -89,8 +89,8 @@ export function AttendanceTracker() {
                 <CardTitle>Mark Attendance</CardTitle>
                 <CardDescription>Select a class and a date to mark attendance.</CardDescription>
             </CardHeader>
-            <CardContent className="flex flex-col md:flex-row gap-8">
-                <div className="flex justify-center md:justify-start">
+            <CardContent className="grid md:grid-cols-2 gap-8">
+                <div className="flex justify-center">
                    <Calendar
                         mode="single"
                         selected={selectedDate}
