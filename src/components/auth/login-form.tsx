@@ -140,7 +140,7 @@ export function LoginForm() {
         <Separator className="my-4" />
         <div className="space-y-2">
             <p className="text-center text-xs text-muted-foreground">Quick Login</p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-4 gap-2">
                 <Button variant="outline" onClick={() => handleQuickLogin('user-admin')}>Admin</Button>
                 <Button variant="outline" onClick={() => handleQuickLogin('user-teacher-1')}>Teacher</Button>
                 <Button variant="outline" onClick={() => handleQuickLogin('user-student-1')}>Student</Button>
