@@ -66,7 +66,7 @@ function Calendar({
               onClick={() => {
                 if (props.onSelect) {
                     const onSelectAsSingle = props.onSelect as (date: Date | undefined, ...args: any[]) => void;
-                    onSelectAsSingle(today, today, { today: true });
+                    onSelectAsSingle(today, today, {} as any);
                 }
               }}
               className={cn(buttonVariants({ variant: "link" }), "text-sm text-muted-foreground uppercase")}
