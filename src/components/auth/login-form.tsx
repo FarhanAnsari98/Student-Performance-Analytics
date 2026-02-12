@@ -29,6 +29,8 @@ import { mockCredentials } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
+import type { Role } from "@/lib/types";
+import { QuickLoginDialog } from "./quick-login-dialog";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -40,6 +42,8 @@ export function LoginForm() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [quickLoginRole, setQuickLoginRole] = React.useState<Role | null>(null);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,19 +69,19 @@ export function LoginForm() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "No user found with that email.",
+                description: "Incorrect email or password.",
             });
             form.setError("email", {
                 type: "manual",
-                message: "No user found with that email.",
+                message: "Incorrect email or password.",
             });
         }
         setIsLoading(false);
     }, 500);
   }
 
-  function handleQuickLogin(userId: string) {
-    const user = mockCredentials.find(u => u.id === userId);
+  function handleAdminLogin() {
+    const user = mockCredentials.find(u => u.id === 'user-admin');
     if (user) {
         login(user);
         toast({
@@ -89,65 +93,74 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
-        <CardDescription>
-          Sign in with an email or use a quick login for demo purposes.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g. name@example.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Use any password for this demo application.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
-            </Button>
-          </form>
-        </Form>
-        <Separator className="my-4" />
-        <div className="space-y-2">
-            <p className="text-center text-xs text-muted-foreground">Quick Login</p>
-            <div className="grid grid-cols-4 gap-2">
-                <Button variant="outline" onClick={() => handleQuickLogin('user-admin')}>Admin</Button>
-                <Button variant="outline" onClick={() => handleQuickLogin('user-teacher-1')}>Teacher</Button>
-                <Button variant="outline" onClick={() => handleQuickLogin('user-student-1')}>Student</Button>
-                <Button variant="outline" onClick={() => handleQuickLogin('user-parent-1')}>Parent</Button>
+    <>
+        <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
+        <CardHeader>
+            <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
+            <CardDescription>
+            Sign in or use a quick login to explore a specific role.
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                        <Input
+                        placeholder="e.g. name@example.com"
+                        {...field}
+                        />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                        <Input type="password" placeholder="********" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        Use any password for this demo application.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sign In
+                </Button>
+            </form>
+            </Form>
+            <Separator className="my-4" />
+            <div className="space-y-2">
+                <p className="text-center text-xs text-muted-foreground">Quick Login</p>
+                <div className="grid grid-cols-4 gap-2">
+                    <Button variant="outline" onClick={handleAdminLogin}>Admin</Button>
+                    <Button variant="outline" onClick={() => setQuickLoginRole('TEACHER')}>Teacher</Button>
+                    <Button variant="outline" onClick={() => setQuickLoginRole('STUDENT')}>Student</Button>
+                    <Button variant="outline" onClick={() => setQuickLoginRole('PARENT')}>Parent</Button>
+                </div>
             </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+        </Card>
+        {quickLoginRole && (
+            <QuickLoginDialog
+                role={quickLoginRole}
+                open={!!quickLoginRole}
+                onOpenChange={(open) => { if (!open) setQuickLoginRole(null); }}
+            />
+        )}
+    </>
   );
 }
