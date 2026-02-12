@@ -32,7 +32,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v4';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v6';
 
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -49,7 +49,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.removeItem('atendalearn-data-v3');
+      localStorage.removeItem('atendalearn-data-v5');
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString() });
 
@@ -141,7 +141,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const newParent: Parent = {
         id: newParentId,
         name: `${studentData.name.split(' ')[0]}'s Parent`,
-        email: `parent.${studentData.email}`,
+        email: `parent.${studentData.email.split('@')[0]}@gmail.com`,
         avatarUrl: `https://picsum.photos/seed/${newParentId}/200/200`,
         childIds: [newStudentId],
     }

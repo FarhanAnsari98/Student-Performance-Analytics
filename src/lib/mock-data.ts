@@ -52,7 +52,7 @@ grades.forEach(grade => {
         
         const teacherId = `teacher-${teacherIdCounter}`;
         const teacherName = teacherNames[teacherIdCounter - 1];
-        const teacherEmail = `${teacherName.replace('Mr. ', '').replace('Ms. ', '').replace('Dr. ', '').split(' ').join('.').toLowerCase()}@atendalearn.edu`;
+        const teacherEmail = `${teacherName.replace('Mr. ', '').replace('Ms. ', '').replace('Dr. ', '').split(' ').join('.').toLowerCase()}@gmail.com`;
         generatedTeachers.push({
             id: teacherId,
             name: teacherName,
@@ -72,7 +72,7 @@ grades.forEach(grade => {
             const studentFirstName = isFemale ? studentFemaleFirstNames[Math.floor(Math.random() * studentFemaleFirstNames.length)] : studentMaleFirstNames[Math.floor(Math.random() * studentMaleFirstNames.length)];
             const studentLastName = studentLastNames[Math.floor(Math.random() * studentLastNames.length)];
             const studentName = `${studentFirstName} ${studentLastName}`;
-            const studentEmail = `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}@atendalearn.edu`;
+            const studentEmail = `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}${studentIdCounter}@gmail.com`;
 
             const riskLevels: ("LOW" | "MEDIUM" | "HIGH")[] = ['LOW', 'MEDIUM', 'HIGH'];
 
@@ -173,7 +173,7 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
     historicalStudents.push({
         id: studentId,
         name: studentName,
-        email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}${admissionYear}@atendalearn.edu`,
+        email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}.${admissionYear}@gmail.com`,
         avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
         classId: 'class-null',
         attendancePercentage: 80 + Math.floor(Math.random() * 20),
@@ -269,7 +269,7 @@ export const mockQueries: Query[] = [
     }
 ];
 
-const adminUser: User = { id: 'user-admin', name: 'Dr. Mehra', email: 'mehra.admin@atendalearn.edu', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
+const adminUser: User = { id: 'user-admin', name: 'Dr. Mehra', email: 'mehra.admin@gmail.com', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
 
 export const mockCredentials: User[] = [
   adminUser,
