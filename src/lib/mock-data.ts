@@ -114,7 +114,7 @@ grades.forEach(grade => {
             generatedParents.push({
                 id: parentId,
                 name: `${studentFirstName}'s Parent`,
-                email: `parent.${studentLastName.toLowerCase()}@email.com`,
+                email: `parent.${studentLastName.toLowerCase()}${studentIdCounter}@gmail.com`,
                 avatarUrl: `https://picsum.photos/seed/${parentId}/200`,
                 childIds: [studentId],
             });
@@ -190,7 +190,7 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
     generatedParents.push({
         id: parentId,
         name: `${studentFirstName}'s Parent`,
-        email: `parent.${studentLastName.toLowerCase()}${admissionYear}@email.com`,
+        email: `parent.${studentLastName.toLowerCase()}.${admissionYear}@gmail.com`,
         avatarUrl: `https://picsum.photos/seed/${parentId}/200`,
         childIds: [studentId],
     });
