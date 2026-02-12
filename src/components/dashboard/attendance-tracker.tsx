@@ -89,8 +89,8 @@ export function AttendanceTracker() {
                 <CardTitle>Mark Attendance</CardTitle>
                 <CardDescription>Select a class and a date to mark attendance.</CardDescription>
             </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-8">
-                <div className="flex flex-col items-center">
+            <CardContent className="flex flex-col md:flex-row gap-8">
+                <div className="flex justify-center md:justify-start">
                    <Calendar
                         mode="single"
                         selected={selectedDate}
@@ -98,7 +98,7 @@ export function AttendanceTracker() {
                         className="rounded-md border"
                     />
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-4 flex-1">
                     <Select value={selectedClassId} onValueChange={setSelectedClassId}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a class..." />
