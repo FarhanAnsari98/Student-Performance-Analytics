@@ -32,7 +32,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v2';
 
 
 export function DataProvider({ children }: { children: ReactNode }) {
