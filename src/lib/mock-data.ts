@@ -108,7 +108,7 @@ grades.forEach(grade => {
                 riskLevel: riskLevels[Math.floor(Math.random() * 3)],
                 parentId: parentId,
                 status: 'ACTIVE',
-                admissionDate: subYears(new Date(), Math.floor(grade / 4)).toISOString(),
+                admissionDate: subYears(new Date(), Math.min(grade -1, 5)).toISOString(), // Admitted in the past based on grade
             });
 
             generatedParents.push({
@@ -135,21 +135,20 @@ const currentYear = new Date().getFullYear();
 for (let i = 0; i < 20; i++) {
     const studentId = `student-hist-${i}`;
     const parentId = `parent-hist-${i}`;
-    const admissionYear = currentYear - (Math.floor(Math.random() * 5) + 2); // Admitted 2-6 years ago
+    const admissionYear = currentYear - (Math.floor(Math.random() * 5) + 4); // Admitted 4-8 years ago
     
     let status: StudentStatus;
     let graduationYear: number | undefined;
     let terminationDate: string | undefined;
 
     const rand = Math.random();
-    if (rand < 0.6) { // Graduated
+    if (rand < 0.7) { // Graduated
         status = 'GRADUATED';
-        graduationYear = admissionYear + 4;
-    } else if (rand < 0.85) { // Terminated
+        graduationYear = admissionYear + 4; // Assuming a 4 year course for simplicity
+    } else { // Terminated
         status = 'TERMINATED';
-        terminationDate = formatISO(new Date(admissionYear + Math.floor(Math.random() * 3) + 1, Math.floor(Math.random() * 12) , 1));
-    } else { // Still active but from previous years (for testing)
-        status = 'ACTIVE';
+        const terminationYear = admissionYear + Math.floor(Math.random() * 3) + 1; // Terminated after 1-3 years
+        terminationDate = formatISO(new Date(terminationYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
     }
 
     const studentFirstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
@@ -161,9 +160,9 @@ for (let i = 0; i < 20; i++) {
         name: studentName,
         email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}.hist@atendalearn.edu`,
         avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
-        classId: 'class-null',
+        classId: 'class-null', // Not in a current class
         attendancePercentage: 80 + Math.floor(Math.random() * 20),
-        scores: [],
+        scores: [], // No scores for historical students for simplicity
         averageScore: 80 + Math.floor(Math.random() * 20),
         riskLevel: 'LOW',
         parentId: parentId,
