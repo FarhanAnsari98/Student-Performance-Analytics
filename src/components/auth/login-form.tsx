@@ -40,6 +40,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [selectedUserEmail, setSelectedUserEmail] = React.useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -104,6 +105,10 @@ export function LoginForm() {
                     <Input
                       placeholder="e.g. user-admin"
                       {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        setSelectedUserEmail(null);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -146,12 +151,19 @@ export function LoginForm() {
                         e.preventDefault();
                         form.setValue('userId', user.id);
                         form.setValue('password', 'password');
+                        const credential = mockCredentials.find(c => c.id === user.id);
+                        setSelectedUserEmail(credential ? credential.email : null);
                     }}
                 >
                     {user.role}
                 </Button>
                 ))}
             </div>
+             {selectedUserEmail && (
+                <div className="mt-3 text-xs text-muted-foreground">
+                    Logging in with email: <span className="font-medium text-foreground">{selectedUserEmail}</span>
+                </div>
+            )}
         </div>
       </CardContent>
     </Card>
