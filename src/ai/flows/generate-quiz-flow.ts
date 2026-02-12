@@ -41,6 +41,7 @@ export async function generateQuiz(input: GenerateQuizInput): Promise<GenerateQu
 
 const prompt = ai.definePrompt({
   name: 'generateQuizPrompt',
+  model: googleAI.model('gemini-1.5-flash-latest'),
   input: {schema: GenerateQuizInputSchema},
   output: {schema: GenerateQuizOutputSchema},
   prompt: `You are an AI assistant for creating educational content. Generate a multiple-choice quiz based on the following criteria.
