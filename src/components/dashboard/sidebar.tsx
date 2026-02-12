@@ -25,7 +25,7 @@ const navItems: NavItem[] = [
   { href: '/dashboard/assignments', title: 'Assignments', icon: BookCopy, roles: ['STUDENT', 'PARENT'] },
   { href: '/dashboard/library', title: 'Online Library', icon: BookOpen, roles: ['STUDENT'] },
   { href: '/dashboard/analytics', title: 'Analytics', icon: BarChart3, roles: ['ADMIN'] },
-  { href: '/dashboard/risk-assessment', title: 'Risk Assessment', icon: ShieldAlert, roles: ['ADMIN', 'TEACHER'] },
+  { href: '/dashboard/risk-assessment', title: 'Risk Assessment', icon: ShieldAlert, roles: ['ADMIN'] },
 ];
 
 export function DashboardSidebar() {
