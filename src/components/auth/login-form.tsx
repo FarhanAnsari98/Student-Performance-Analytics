@@ -29,6 +29,7 @@ import { mockCredentials } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -76,25 +77,24 @@ export function LoginForm() {
     }, 500);
   }
 
-    // Find actual sample emails from mock data
-  const adminUser = mockCredentials.find(u => u.id === 'user-admin');
-  const teacherUser = mockCredentials.find(u => u.id === 'user-teacher-1');
-  const studentUser = mockCredentials.find(u => u.id === 'user-student-1');
-  const parentUser = mockCredentials.find(u => u.id === 'user-parent-1');
-
-  const sampleUsers = [
-    { role: 'Admin', email: adminUser?.email },
-    { role: 'Teacher', email: teacherUser?.email },
-    { role: 'Student', email: studentUser?.email },
-    { role: 'Parent', email: parentUser?.email },
-  ].filter(u => u.email); // Filter out any that might be undefined
+  function handleQuickLogin(userId: string) {
+    const user = mockCredentials.find(u => u.id === userId);
+    if (user) {
+        login(user);
+        toast({
+            title: "Login Successful",
+            description: `Welcome back, ${user.name}!`,
+        });
+        router.push("/dashboard");
+    }
+  }
 
   return (
     <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
         <CardDescription>
-          Enter your email to access your dashboard.
+          Enter an email to access your dashboard, or use the quick login below.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -139,25 +139,23 @@ export function LoginForm() {
           </form>
         </Form>
         <Separator className="my-4" />
-        <div className="text-center">
-            <p className="text-xs text-muted-foreground">Or click to quick-login as:</p>
-            <div className="flex flex-wrap justify-center gap-2 mt-2">
-                {sampleUsers.map(user => user.email ? (
-                <Button
-                    key={user.email}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        form.setValue('email', user.email!);
-                        form.setValue('password', 'password');
-                    }}
-                >
-                    {user.role}
-                </Button>
-                ) : null)}
-            </div>
+        <div className="space-y-2 text-center">
+            <p className="text-xs text-muted-foreground">For demo purposes, select any user to log in</p>
+            <Select onValueChange={handleQuickLogin}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a user to log in..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {mockCredentials.sort((a, b) => a.name.localeCompare(b.name)).map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                            <div className="flex items-center gap-2">
+                                <span>{user.name}</span>
+                                <span className="text-muted-foreground">({user.role})</span>
+                            </div>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
         </div>
       </CardContent>
     </Card>
