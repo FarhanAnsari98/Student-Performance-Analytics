@@ -32,7 +32,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v2';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v3';
 
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -49,6 +49,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
+      localStorage.removeItem('atendalearn-data-v2');
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString() });
 

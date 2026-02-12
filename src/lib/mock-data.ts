@@ -136,8 +136,8 @@ for (let i = 0; i < 40; i++) { // Increased number of historical records
     const studentId = `student-hist-${i}`;
     const parentId = `parent-hist-${i}`;
     
-    // Admission 3 to 10 years ago
-    const admissionYear = currentYear - (Math.floor(Math.random() * 8) + 3);
+    // Admission 5 to 40 years ago
+    const admissionYear = currentYear - (Math.floor(Math.random() * 35) + 5);
     const admissionDate = formatISO(new Date(admissionYear, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1));
     
     let status: StudentStatus;
