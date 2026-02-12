@@ -29,7 +29,6 @@ import { mockCredentials } from "@/lib/mock-data";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -94,7 +93,7 @@ export function LoginForm() {
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
         <CardDescription>
-          Enter an email to access your dashboard, or use the quick login below.
+          Sign in with an email or use a quick login for demo purposes.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -139,23 +138,14 @@ export function LoginForm() {
           </form>
         </Form>
         <Separator className="my-4" />
-        <div className="space-y-2 text-center">
-            <p className="text-xs text-muted-foreground">For demo purposes, select any user to log in</p>
-            <Select onValueChange={handleQuickLogin}>
-                <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a user to log in..." />
-                </SelectTrigger>
-                <SelectContent>
-                    {mockCredentials.sort((a, b) => a.name.localeCompare(b.name)).map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                            <div className="flex items-center gap-2">
-                                <span>{user.name}</span>
-                                <span className="text-muted-foreground">({user.role})</span>
-                            </div>
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+        <div className="space-y-2">
+            <p className="text-center text-xs text-muted-foreground">Quick Login</p>
+            <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" onClick={() => handleQuickLogin('user-admin')}>Admin</Button>
+                <Button variant="outline" onClick={() => handleQuickLogin('user-teacher-1')}>Teacher</Button>
+                <Button variant="outline" onClick={() => handleQuickLogin('user-student-1')}>Student</Button>
+                <Button variant="outline" onClick={() => handleQuickLogin('user-parent-1')}>Parent</Button>
+            </div>
         </div>
       </CardContent>
     </Card>
