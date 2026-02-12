@@ -14,7 +14,7 @@ interface DataContextType {
   announcements: Announcement[];
   queries: Query[];
   manualQuizzes: ManualQuiz[];
-  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks'>) => void;
+  addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'graduationYear' | 'terminationDate'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
   getStudentById: (studentId: string) => Student | undefined;
@@ -50,7 +50,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || []});
+      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString() });
 
       if (storedData) {
         const parsedData = JSON.parse(storedData);
@@ -77,7 +77,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error("Failed to load data from localStorage", error);
-      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || []});
+      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString()});
       // Fallback to mock data if localStorage is corrupt
       setStudents(mockStudents.map(mapWithRemarks));
       setParents(mockParents);
@@ -104,7 +104,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, [students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes, loading]);
 
-  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks'>) => {
+  const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'graduationYear' | 'terminationDate'>) => {
     const newStudentId = `student-gen-${Date.now()}`;
     const newParentId = `parent-gen-${Date.now()}`;
     
@@ -133,6 +133,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       scores,
       averageScore,
       remarks: [],
+      status: 'ACTIVE',
+      admissionDate: new Date().toISOString(),
     };
 
     const newParent: Parent = {

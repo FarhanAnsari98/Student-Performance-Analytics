@@ -11,15 +11,17 @@ import { AddStudentDialog } from './add-student-dialog';
 
 export function AdminDashboard() {
   const { students, teachers, subjects, classes, parents } = useData();
-  const totalStudents = students.length;
+  const activeStudents = students.filter(s => s.status === 'ACTIVE');
+  
+  const totalStudents = activeStudents.length;
   const totalParents = parents.length;
   const totalTeachers = teachers.length;
   const totalSubjects = subjects.length;
   const totalClasses = classes.length;
-  const highRiskStudents = students.filter(s => s.riskLevel === 'HIGH').length;
+  const highRiskStudents = activeStudents.filter(s => s.riskLevel === 'HIGH').length;
 
   const averageAttendance = totalStudents > 0 ? (
-    students.reduce((acc, s) => acc + s.attendancePercentage, 0) / totalStudents
+    activeStudents.reduce((acc, s) => acc + s.attendancePercentage, 0) / totalStudents
   ).toFixed(1) : "0.0";
 
   return (
@@ -35,7 +37,7 @@ export function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -83,10 +85,10 @@ export function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle className="font-headline">All Students</CardTitle>
+            <CardTitle className="font-headline">Active Students</CardTitle>
           </CardHeader>
           <CardContent>
-             <StudentsDataTable students={students} />
+             <StudentsDataTable students={activeStudents} />
           </CardContent>
         </Card>
         <div className="col-span-4 lg:col-span-3 space-y-4">
@@ -95,7 +97,7 @@ export function AdminDashboard() {
                 <CardTitle className="font-headline">Student Risk Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <StudentRiskChart students={students} />
+                <StudentRiskChart students={activeStudents} />
               </CardContent>
             </Card>
              <div className="grid grid-cols-2 gap-4">

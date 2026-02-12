@@ -21,6 +21,8 @@ export type Remark = {
   date: string; // ISO string
 };
 
+export type StudentStatus = "ACTIVE" | "GRADUATED" | "TERMINATED";
+
 export type Student = {
   id: string;
   name: string;
@@ -33,6 +35,10 @@ export type Student = {
   riskLevel: "LOW" | "MEDIUM" | "HIGH";
   parentId: string;
   remarks?: Remark[];
+  status: StudentStatus;
+  admissionDate: string; // ISO string
+  graduationYear?: number;
+  terminationDate?: string; // ISO string
 };
 
 export type Parent = {

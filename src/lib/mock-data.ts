@@ -1,4 +1,6 @@
-import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore, Query } from '@/lib/types';
+import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, AttendanceRecord, Announcement, SubjectScore, Query, StudentStatus } from '@/lib/types';
+import { subYears, formatISO } from 'date-fns';
+
 
 export const mockSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
@@ -20,7 +22,7 @@ const sections = ['A', 'B'];
 
 const generatedClasses: Class[] = [];
 const generatedTeachers: Teacher[] = [];
-const generatedStudents: Student[] = [];
+let generatedStudents: Student[] = [];
 const generatedParents: Parent[] = [];
 
 let classIdCounter = 1;
@@ -105,6 +107,8 @@ grades.forEach(grade => {
                 averageScore: averageScore,
                 riskLevel: riskLevels[Math.floor(Math.random() * 3)],
                 parentId: parentId,
+                status: 'ACTIVE',
+                admissionDate: subYears(new Date(), Math.floor(grade / 4)).toISOString(),
             });
 
             generatedParents.push({
@@ -124,6 +128,62 @@ grades.forEach(grade => {
         });
     });
 });
+
+// Generate some historical data
+const historicalStudents: Student[] = [];
+const currentYear = new Date().getFullYear();
+for (let i = 0; i < 20; i++) {
+    const studentId = `student-hist-${i}`;
+    const parentId = `parent-hist-${i}`;
+    const admissionYear = currentYear - (Math.floor(Math.random() * 5) + 2); // Admitted 2-6 years ago
+    
+    let status: StudentStatus;
+    let graduationYear: number | undefined;
+    let terminationDate: string | undefined;
+
+    const rand = Math.random();
+    if (rand < 0.6) { // Graduated
+        status = 'GRADUATED';
+        graduationYear = admissionYear + 4;
+    } else if (rand < 0.85) { // Terminated
+        status = 'TERMINATED';
+        terminationDate = formatISO(new Date(admissionYear + Math.floor(Math.random() * 3) + 1, Math.floor(Math.random() * 12) , 1));
+    } else { // Still active but from previous years (for testing)
+        status = 'ACTIVE';
+    }
+
+    const studentFirstName = studentFirstNames[Math.floor(Math.random() * studentFirstNames.length)];
+    const studentLastName = studentNamePool[Math.floor(Math.random() * studentNamePool.length)];
+    const studentName = `${studentFirstName} ${studentLastName}`;
+
+    historicalStudents.push({
+        id: studentId,
+        name: studentName,
+        email: `${studentFirstName.toLowerCase()}.${studentLastName.toLowerCase()}.hist@atendalearn.edu`,
+        avatarUrl: `https://picsum.photos/seed/${studentId}/200`,
+        classId: 'class-null',
+        attendancePercentage: 80 + Math.floor(Math.random() * 20),
+        scores: [],
+        averageScore: 80 + Math.floor(Math.random() * 20),
+        riskLevel: 'LOW',
+        parentId: parentId,
+        status: status,
+        admissionDate: formatISO(new Date(admissionYear, 8, 1)),
+        graduationYear,
+        terminationDate,
+    });
+
+    generatedParents.push({
+        id: parentId,
+        name: `${studentFirstName}'s Parent (Hist)`,
+        email: `parent.hist.${studentLastName.toLowerCase()}@email.com`,
+        avatarUrl: `https://picsum.photos/seed/${parentId}/200`,
+        childIds: [studentId],
+    });
+}
+
+generatedStudents = [...generatedStudents, ...historicalStudents];
+
 
 export const mockClasses: Class[] = generatedClasses;
 export const mockTeachers: Teacher[] = generatedTeachers;

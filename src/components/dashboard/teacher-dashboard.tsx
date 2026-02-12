@@ -20,7 +20,7 @@ export function TeacherDashboard() {
 
   const assignedClasses = classes.filter(c => c.teacherId === teacher.id);
   const assignedStudentIds = assignedClasses.flatMap(c => c.studentIds);
-  const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
+  const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id) && s.status === 'ACTIVE');
   const pendingAssignments = assignedStudents.flatMap(s => getPendingAssignmentsForStudent(s.id));
   
   const upcomingAssignments = pendingAssignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 5);
@@ -49,8 +49,8 @@ export function TeacherDashboard() {
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle className="font-headline">Your Students</CardTitle>
-            <CardDescription>An overview of all students in your classes.</CardDescription>
+            <CardTitle className="font-headline">Your Active Students</CardTitle>
+            <CardDescription>An overview of all students currently in your classes.</CardDescription>
           </CardHeader>
           <CardContent>
             <StudentsDataTable students={assignedStudents} />

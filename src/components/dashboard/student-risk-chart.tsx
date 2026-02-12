@@ -28,7 +28,9 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function StudentRiskChart({ students }: StudentRiskChartProps) {
-  const riskCounts = students.reduce((acc, student) => {
+  const activeStudents = students.filter(s => s.status === 'ACTIVE');
+
+  const riskCounts = activeStudents.reduce((acc, student) => {
     if (student.riskLevel === 'LOW') acc.low++;
     if (student.riskLevel === 'MEDIUM') acc.medium++;
     if (student.riskLevel === 'HIGH') acc.high++;
