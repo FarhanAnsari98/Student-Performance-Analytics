@@ -31,7 +31,7 @@ import { Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
 
 const formSchema = z.object({
-  userId: z.string().min(1, { message: "Please enter a valid User ID." }),
+  email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(1, { message: "Password is required." }), // Dummy validation
 });
 
@@ -40,19 +40,18 @@ export function LoginForm() {
   const { login } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [selectedUserEmail, setSelectedUserEmail] = React.useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      userId: "",
+      email: "",
       password: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const user = mockCredentials.find(u => u.id.toLowerCase() === values.userId.toLowerCase());
+    const user = mockCredentials.find(u => u.email.toLowerCase() === values.email.toLowerCase());
 
     setTimeout(() => { // Simulate network delay
         if (user) {
@@ -66,30 +65,36 @@ export function LoginForm() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "No user found with that ID.",
+                description: "No user found with that email.",
             });
-            form.setError("userId", {
+            form.setError("email", {
                 type: "manual",
-                message: "No user found with that ID.",
+                message: "No user found with that email.",
             });
         }
         setIsLoading(false);
     }, 500);
   }
 
+    // Find actual sample emails from mock data
+  const adminUser = mockCredentials.find(u => u.id === 'user-admin');
+  const teacherUser = mockCredentials.find(u => u.id === 'user-teacher-1');
+  const studentUser = mockCredentials.find(u => u.id === 'user-student-1');
+  const parentUser = mockCredentials.find(u => u.id === 'user-parent-1');
+
   const sampleUsers = [
-    { role: 'Admin', id: 'user-admin' },
-    { role: 'Teacher', id: 'user-teacher-1' },
-    { role: 'Student', id: 'user-student-1' },
-    { role: 'Parent', id: 'user-parent-1' },
-  ];
+    { role: 'Admin', email: adminUser?.email },
+    { role: 'Teacher', email: teacherUser?.email },
+    { role: 'Student', email: studentUser?.email },
+    { role: 'Parent', email: parentUser?.email },
+  ].filter(u => u.email); // Filter out any that might be undefined
 
   return (
     <Card className="w-full max-w-sm mt-8 shadow-2xl bg-card/80 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
         <CardDescription>
-          Enter your User ID to access your dashboard.
+          Enter your email to access your dashboard.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -97,18 +102,14 @@ export function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="userId"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User ID</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="e.g. user-admin"
+                      placeholder="e.g. name@example.com"
                       {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        setSelectedUserEmail(null);
-                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -141,29 +142,22 @@ export function LoginForm() {
         <div className="text-center">
             <p className="text-xs text-muted-foreground">Or click to quick-login as:</p>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
-                {sampleUsers.map(user => (
+                {sampleUsers.map(user => user.email ? (
                 <Button
-                    key={user.id}
+                    key={user.email}
                     variant="outline"
                     size="sm"
                     className="text-xs"
                     onClick={(e) => {
                         e.preventDefault();
-                        form.setValue('userId', user.id);
+                        form.setValue('email', user.email!);
                         form.setValue('password', 'password');
-                        const credential = mockCredentials.find(c => c.id === user.id);
-                        setSelectedUserEmail(credential ? credential.email : null);
                     }}
                 >
                     {user.role}
                 </Button>
-                ))}
+                ) : null)}
             </div>
-             {selectedUserEmail && (
-                <div className="mt-3 text-xs text-muted-foreground">
-                    Logging in with email: <span className="font-medium text-foreground">{selectedUserEmail}</span>
-                </div>
-            )}
         </div>
       </CardContent>
     </Card>
