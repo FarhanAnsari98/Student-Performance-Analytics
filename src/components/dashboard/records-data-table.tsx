@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -96,6 +97,7 @@ interface RecordsDataTableProps {
 }
 
 export function RecordsDataTable({ students }: RecordsDataTableProps) {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -121,6 +123,10 @@ export function RecordsDataTable({ students }: RecordsDataTableProps) {
       columnVisibility,
     },
   })
+
+  const handleRowClick = (studentId: string) => {
+    router.push(`/dashboard/students/${studentId}`);
+  };
 
   return (
     <div className="w-full pt-4 px-6 pb-2">
@@ -160,6 +166,8 @@ export function RecordsDataTable({ students }: RecordsDataTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer"
+                  onClick={() => handleRowClick(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

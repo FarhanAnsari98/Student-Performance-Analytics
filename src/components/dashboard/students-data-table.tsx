@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -52,6 +53,7 @@ interface StudentsDataTableProps {
 }
 
 export function StudentsDataTable({ students }: StudentsDataTableProps) {
+  const router = useRouter();
   const { parents } = useData();
   const { role } = useAuth();
   const [editingStudent, setEditingStudent] = React.useState<Student | null>(null);
@@ -117,7 +119,7 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
                 <div className="text-right">
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                         <span className="sr-only">Open menu</span>
                         <MoreHorizontal className="h-4 w-4" />
                         </Button>
@@ -169,6 +171,10 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
     },
   })
 
+  const handleRowClick = (studentId: string) => {
+    router.push(`/dashboard/students/${studentId}`);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
@@ -207,9 +213,17 @@ export function StudentsDataTable({ students }: StudentsDataTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer"
+                  onClick={() => handleRowClick(row.original.id)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id}
+                      onClick={(e) => {
+                          if (cell.column.id === 'actions') {
+                            e.stopPropagation();
+                          }
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
