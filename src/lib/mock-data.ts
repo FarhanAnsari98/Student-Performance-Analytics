@@ -2,20 +2,25 @@ import type { Student, Teacher, Parent, Class, Assignment, User, Role, Subject, 
 import { subYears, formatISO } from 'date-fns';
 
 
-export const mockSubjects: Subject[] = [
+const coreSubjects: Subject[] = [
     { id: 'subject-1', name: 'Mathematics' },
-    { id: 'subject-2', name: 'Physics' },
-    { id: 'subject-3', name: 'Computer Science' },
     { id: 'subject-4', name: 'History' },
-    { id: 'subject-5', name: 'Biology' },
     { id: 'subject-6', name: 'English' },
-    { id: 'subject-7', name: 'Chemistry' },
     { id: 'subject-8', name: 'Art' },
     { id: 'subject-9', name: 'Music' },
     { id: 'subject-10', name: 'Physical Education' },
     { id: 'subject-11', name: 'Geography' },
-    { id: 'subject-12', name: 'General Science' },
+    { id: 'subject-12', name: 'Science' },
 ];
+
+const advancedSubjects: Subject[] = [
+    { id: 'subject-2', name: 'Physics' },
+    { id: 'subject-3', name: 'Computer Science' },
+    { id: 'subject-5', name: 'Biology' },
+    { id: 'subject-7', name: 'Chemistry' },
+];
+
+export const mockSubjects: Subject[] = [...coreSubjects, ...advancedSubjects];
 
 const grades = Array.from({ length: 12 }, (_, i) => i + 1);
 const sections = ['A', 'B'];
@@ -76,10 +81,11 @@ grades.forEach(grade => {
 
             const riskLevels: ("LOW" | "MEDIUM" | "HIGH")[] = ['LOW', 'MEDIUM', 'HIGH'];
 
+            const availableSubjects = grade <= 8 ? coreSubjects : mockSubjects;
             const assignedSubjects: Subject[] = [];
             const numSubjects = Math.floor(Math.random() * 3) + 4; // 4 to 6 subjects
-            const shuffledSubjects = [...mockSubjects].sort(() => 0.5 - Math.random());
-            for (let j = 0; j < numSubjects; j++) {
+            const shuffledSubjects = [...availableSubjects].sort(() => 0.5 - Math.random());
+            for (let j = 0; j < numSubjects && j < shuffledSubjects.length; j++) {
                 assignedSubjects.push(shuffledSubjects[j]);
             }
             
