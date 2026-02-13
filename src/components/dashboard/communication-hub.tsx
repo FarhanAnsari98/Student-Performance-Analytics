@@ -11,13 +11,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
-import { Megaphone, MessageSquare, ClipboardCheck, Loader2, BrainCircuit } from 'lucide-react';
+import { Megaphone, MessageSquare, ClipboardCheck, Loader2, BrainCircuit, BookCopy } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { QueriesTab } from './queries-tab';
 import { MockTestsTab } from './mock-tests-tab';
+import { AssignmentsTab } from './assignments-tab';
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -61,7 +62,7 @@ export function CommunicationHub() {
 
     return (
         <Tabs defaultValue="announcements">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
                 <TabsTrigger value="announcements">
                     <Megaphone className="mr-2 h-4 w-4" />
                     Announcements
@@ -73,6 +74,10 @@ export function CommunicationHub() {
                 <TabsTrigger value="mock-tests">
                     <ClipboardCheck className="mr-2 h-4 w-4" />
                     Mock Tests
+                </TabsTrigger>
+                 <TabsTrigger value="assignments">
+                    <BookCopy className="mr-2 h-4 w-4" />
+                    Assignments
                 </TabsTrigger>
             </TabsList>
             <TabsContent value="announcements">
@@ -172,6 +177,9 @@ export function CommunicationHub() {
             </TabsContent>
             <TabsContent value="mock-tests">
                 <MockTestsTab />
+            </TabsContent>
+            <TabsContent value="assignments">
+                <AssignmentsTab />
             </TabsContent>
         </Tabs>
     );

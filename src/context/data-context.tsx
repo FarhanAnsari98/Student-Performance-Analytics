@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
-import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore, Remark, Query, ManualQuiz } from '@/lib/types';
+import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore, Remark, Query, ManualQuiz, Assignment } from '@/lib/types';
 import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance, mockAnnouncements, mockQueries } from '@/lib/mock-data';
 
 // Centralized state interface
@@ -15,6 +15,7 @@ interface AppData {
   announcements: Announcement[];
   queries: Query[];
   manualQuizzes: ManualQuiz[];
+  assignments: Assignment[];
 }
 
 interface DataContextType extends AppData {
@@ -32,6 +33,7 @@ interface DataContextType extends AppData {
   addQuery: (question: string, studentId: string, teacherId: string, author: { id: string; name: string; }) => void;
   answerQuery: (queryId: string, answer: string) => void;
   addManualQuiz: (quiz: Omit<ManualQuiz, 'id'>) => void;
+  addAssignment: (assignment: Omit<Assignment, 'id' | 'status'>) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -53,7 +55,7 @@ const loadInitialData = (): AppData => {
     // Return a default empty state for server-side rendering
     return {
       students: [], parents: [], teachers: [], subjects: [], classes: [],
-      attendance: [], announcements: [], queries: [], manualQuizzes: []
+      attendance: [], announcements: [], queries: [], manualQuizzes: [], assignments: []
     };
   }
   try {
@@ -75,6 +77,7 @@ const loadInitialData = (): AppData => {
         announcements: parsedData.announcements || mockAnnouncements,
         queries: parsedData.queries || mockQueries,
         manualQuizzes: parsedData.manualQuizzes || [],
+        assignments: parsedData.assignments || mockAssignments,
       };
     }
   } catch (error) {
@@ -91,6 +94,7 @@ const loadInitialData = (): AppData => {
     announcements: mockAnnouncements,
     queries: mockQueries,
     manualQuizzes: [],
+    assignments: mockAssignments,
   };
 };
 
@@ -192,10 +196,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const getPendingAssignmentsForStudent = useCallback((studentId: string) => {
     const student = data.students.find(s => s.id === studentId);
     if (!student) return [];
-    return mockAssignments
+    return data.assignments
       .filter(a => a.classId === student.classId)
       .map(a => ({ ...a, studentId, status: 'PENDING' as const }));
-  }, [data.students]);
+  }, [data.students, data.assignments]);
 
   const updateStudent = useCallback((studentId: string, studentData: { name: string }) => {
     setData(prev => ({ ...prev, students: prev.students.map(s => s.id === studentId ? { ...s, ...studentData } : s) }));
@@ -272,6 +276,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setData(prev => ({ ...prev, manualQuizzes: [newQuiz, ...prev.manualQuizzes] }));
   }, []);
 
+  const addAssignment = useCallback((assignmentData: Omit<Assignment, 'id' | 'status'>) => {
+    const newAssignment: Assignment = {
+      ...assignmentData,
+      id: `assign-gen-${Date.now()}`,
+      status: 'PENDING',
+    };
+    setData(prev => ({ ...prev, assignments: [newAssignment, ...prev.assignments] }));
+  }, []);
+
   if (!isMounted) {
     return null; // or a loading spinner
   }
@@ -292,6 +305,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     addQuery,
     answerQuery,
     addManualQuiz,
+    addAssignment,
   };
 
   return (
@@ -308,5 +322,3 @@ export function useData() {
   }
   return context;
 }
-
-    

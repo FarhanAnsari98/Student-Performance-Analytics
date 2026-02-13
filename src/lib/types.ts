@@ -74,8 +74,10 @@ export type Assignment = {
   id: string;
   classId: string;
   title: string;
+  description?: string;
   dueDate: string;
   status: "PENDING" | "SUBMITTED" | "GRADED";
+  fileName?: string;
 };
 
 export type StudentAssignment = Assignment & {

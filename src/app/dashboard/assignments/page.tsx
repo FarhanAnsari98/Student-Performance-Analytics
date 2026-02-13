@@ -3,8 +3,9 @@
 import { useAuth } from "@/context/auth-context";
 import { useData } from "@/context/data-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookCopy, CheckCircle, Clock } from "lucide-react";
+import { BookCopy, CheckCircle, Clock, Paperclip } from "lucide-react";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 export default function AssignmentsPage() {
     const { user } = useAuth();
@@ -40,9 +41,18 @@ export default function AssignmentsPage() {
                             <BookCopy className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
                             <div className="flex-grow">
                                 <p className="font-semibold text-base">{assignment.title}</p>
-                                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
-                                <Clock className="h-4 w-4" /> Due on {format(new Date(assignment.dueDate), "eeee, MMMM do")}
+                                {assignment.description && (
+                                    <p className="text-sm text-muted-foreground mt-1">{assignment.description}</p>
+                                )}
+                                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-2">
+                                    <Clock className="h-4 w-4" /> Due on {format(new Date(assignment.dueDate), "eeee, MMMM do")}
                                 </p>
+                                {assignment.fileName && (
+                                    <Button variant="outline" size="sm" className="mt-2">
+                                        <Paperclip className="h-4 w-4 mr-2"/>
+                                        {assignment.fileName}
+                                    </Button>
+                                )}
                             </div>
                             </li>
                         ))}
