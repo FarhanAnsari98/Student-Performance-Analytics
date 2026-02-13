@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -25,11 +26,11 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { mockCredentials } from "@/lib/mock-data";
+import { useData } from "@/context/data-context";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
-import type { Role } from "@/lib/types";
+import type { Role, User } from "@/lib/types";
 import { QuickLoginDialog } from "./quick-login-dialog";
 
 const formSchema = z.object({
@@ -40,9 +41,19 @@ const formSchema = z.object({
 export function LoginForm() {
   const router = useRouter();
   const { login } = useAuth();
+  const { students, teachers, parents } = useData();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const [quickLoginRole, setQuickLoginRole] = React.useState<Role | null>(null);
+
+  const allUsers: User[] = React.useMemo(() => {
+    const adminUser: User = { id: 'user-admin', name: 'Dr. Mehra', email: 'mehra.admin@gmail.com', role: 'ADMIN', avatarUrl: 'https://picsum.photos/seed/admin/200' };
+    const studentUsers: User[] = students.map(s => ({ id: `user-${s.id}`, name: s.name, email: s.email, role: 'STUDENT', avatarUrl: s.avatarUrl }));
+    const teacherUsers: User[] = teachers.map(t => ({ id: `user-${t.id}`, name: t.name, email: t.email, role: 'TEACHER', avatarUrl: t.avatarUrl }));
+    const parentUsers: User[] = parents.map(p => ({ id: `user-${p.id}`, name: p.name, email: p.email, role: 'PARENT', avatarUrl: p.avatarUrl }));
+
+    return [adminUser, ...studentUsers, ...teacherUsers, ...parentUsers];
+  }, [students, teachers, parents]);
 
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,7 +66,7 @@ export function LoginForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const user = mockCredentials.find(u => u.email.toLowerCase() === values.email.toLowerCase());
+    const user = allUsers.find(u => u.email.toLowerCase() === values.email.toLowerCase());
 
     setTimeout(() => { // Simulate network delay
         if (user) {
@@ -81,7 +92,7 @@ export function LoginForm() {
   }
 
   function handleAdminLogin() {
-    const user = mockCredentials.find(u => u.id === 'user-admin');
+    const user = allUsers.find(u => u.id === 'user-admin');
     if (user) {
         login(user);
         toast({
