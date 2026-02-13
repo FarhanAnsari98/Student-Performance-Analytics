@@ -4,7 +4,8 @@ import React, { createContext, useContext, useState, ReactNode, useCallback, use
 import type { Student, Parent, Teacher, StudentAssignment, Subject, Class, AttendanceRecord, AttendanceStatus, Announcement, Role, SubjectScore, Remark, Query, ManualQuiz } from '@/lib/types';
 import { mockStudents, mockParents, mockAssignments, mockTeachers, mockSubjects, mockClasses, mockAttendance, mockAnnouncements, mockQueries } from '@/lib/mock-data';
 
-interface DataContextType {
+// Centralized state interface
+interface AppData {
   students: Student[];
   parents: Parent[];
   teachers: Teacher[];
@@ -14,6 +15,9 @@ interface DataContextType {
   announcements: Announcement[];
   queries: Query[];
   manualQuizzes: ManualQuiz[];
+}
+
+interface DataContextType extends AppData {
   addStudent: (student: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => void;
   addTeacher: (teacher: Omit<Teacher, 'id' | 'avatarUrl'>) => void;
   addSubject: (subject: Omit<Subject, 'id'>) => void;
@@ -32,124 +36,135 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v11';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v12'; // Increment version to avoid conflicts
 
+// Helper to ensure all fields from Student are present after loading from localStorage
+const mapStudentData = (s: Student): Student => ({
+  ...s,
+  remarks: s.remarks || [],
+  status: s.status || 'ACTIVE',
+  admissionDate: s.admissionDate || new Date().toISOString(),
+});
+
+// Initializer function to load data from localStorage or use mock data
+const loadInitialData = (): AppData => {
+  // This code runs only on the client, so we can safely check for `window`
+  if (typeof window === 'undefined') {
+    // Return a default empty state for server-side rendering
+    return {
+      students: [], parents: [], teachers: [], subjects: [], classes: [],
+      attendance: [], announcements: [], queries: [], manualQuizzes: []
+    };
+  }
+  try {
+    // Clean up older versions if they exist
+    localStorage.removeItem('atendalearn-data-v10');
+    localStorage.removeItem('atendalearn-data-v11');
+
+    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      // Ensure data integrity on load
+      return {
+        students: (parsedData.students || mockStudents).map(mapStudentData),
+        parents: parsedData.parents || mockParents,
+        teachers: parsedData.teachers || mockTeachers,
+        subjects: parsedData.subjects || mockSubjects,
+        classes: parsedData.classes || mockClasses,
+        attendance: parsedData.attendance || mockAttendance,
+        announcements: parsedData.announcements || mockAnnouncements,
+        queries: parsedData.queries || mockQueries,
+        manualQuizzes: parsedData.manualQuizzes || [],
+      };
+    }
+  } catch (error) {
+    console.error("Failed to parse data from localStorage, using mock data.", error);
+  }
+  // Return fresh mock data if nothing in storage or if parsing fails
+  return {
+    students: mockStudents.map(mapStudentData),
+    parents: mockParents,
+    teachers: mockTeachers,
+    subjects: mockSubjects,
+    classes: mockClasses,
+    attendance: mockAttendance,
+    announcements: mockAnnouncements,
+    queries: mockQueries,
+    manualQuizzes: [],
+  };
+};
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [parents, setParents] = useState<Parent[]>([]);
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [queries, setQueries] = useState<Query[]>([]);
-  const [manualQuizzes, setManualQuizzes] = useState<ManualQuiz[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AppData>(loadInitialData);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // Ensure we only interact with localStorage on the client after mount
   useEffect(() => {
-    try {
-      localStorage.removeItem('atendalearn-data-v10');
-      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString() });
-
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        setStudents((parsedData.students || []).map(mapWithRemarks));
-        setParents(parsedData.parents || []);
-        setTeachers(parsedData.teachers || []);
-        setSubjects(parsedData.subjects || []);
-        setClasses(parsedData.classes || []);
-        setAttendance(parsedData.attendance || []);
-        setAnnouncements(parsedData.announcements || []);
-        setQueries(parsedData.queries || []);
-        setManualQuizzes(parsedData.manualQuizzes || []);
-      } else {
-        // If no data, use mock and store it
-        setStudents(mockStudents.map(mapWithRemarks));
-        setParents(mockParents);
-        setTeachers(mockTeachers);
-        setSubjects(mockSubjects);
-        setClasses(mockClasses);
-        setAttendance(mockAttendance);
-        setAnnouncements(mockAnnouncements);
-        setQueries(mockQueries);
-        setManualQuizzes([]);
-      }
-    } catch (error) {
-      console.error("Failed to load data from localStorage", error);
-      const mapWithRemarks = (s: Student) => ({...s, remarks: s.remarks || [], status: s.status || 'ACTIVE', admissionDate: s.admissionDate || new Date().toISOString()});
-      // Fallback to mock data if localStorage is corrupt
-      setStudents(mockStudents.map(mapWithRemarks));
-      setParents(mockParents);
-      setTeachers(mockTeachers);
-      setSubjects(mockSubjects);
-      setClasses(mockClasses);
-      setAttendance(mockAttendance);
-      setAnnouncements(mockAnnouncements);
-      setQueries(mockQueries);
-      setManualQuizzes([]);
-    } finally {
-        setLoading(false);
-    }
+    setIsMounted(true);
+    setData(loadInitialData());
   }, []);
 
+  // Effect to save the entire state to localStorage whenever it changes
   useEffect(() => {
-    if (!loading) {
-      try {
-        const dataToStore = JSON.stringify({ students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes });
-        localStorage.setItem(LOCAL_STORAGE_KEY, dataToStore);
-      } catch (error) {
-        console.error("Failed to save data to localStorage", error);
-      }
+    if (isMounted) {
+        try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        } catch (error) {
+            console.error("Failed to save data to localStorage", error);
+        }
     }
-  }, [students, parents, teachers, subjects, classes, attendance, announcements, queries, manualQuizzes, loading]);
+  }, [data, isMounted]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => {
-    const newStudentId = `student-gen-${Date.now()}`;
-    const newParentId = `parent-gen-${Date.now()}`;
-    
-    const assignedSubjects: Subject[] = [];
-    const numSubjects = 5;
-    const shuffledSubjects = [...subjects].sort(() => 0.5 - Math.random());
-    for (let j = 0; j < numSubjects && j < shuffledSubjects.length; j++) {
-        assignedSubjects.push(shuffledSubjects[j]);
-    }
-    
-    let totalScore = 0;
-    const scores: SubjectScore[] = assignedSubjects.map(subject => {
-        const score = 60 + Math.floor(Math.random() * 41);
-        totalScore += score;
-        return { subject: subject.name, score };
+    setData(prevData => {
+        const newStudentId = `student-gen-${Date.now()}`;
+        const newParentId = `parent-gen-${Date.now()}`;
+        
+        const assignedSubjects: Subject[] = [];
+        const numSubjects = 5;
+        const shuffledSubjects = [...prevData.subjects].sort(() => 0.5 - Math.random());
+        for (let j = 0; j < numSubjects && j < shuffledSubjects.length; j++) {
+            assignedSubjects.push(shuffledSubjects[j]);
+        }
+        
+        let totalScore = 0;
+        const scores: SubjectScore[] = assignedSubjects.map(subject => {
+            const score = 60 + Math.floor(Math.random() * 41);
+            totalScore += score;
+            return { subject: subject.name, score };
+        });
+
+        const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
+
+        const newStudent: Student = {
+          ...studentData,
+          id: newStudentId,
+          parentId: newParentId,
+          avatarUrl: `https://picsum.photos/seed/${newStudentId}/200/200`,
+          riskLevel: 'LOW',
+          scores,
+          averageScore,
+          remarks: [],
+          status: 'ACTIVE',
+          admissionDate: new Date().toISOString(),
+          admissionGrade: 1,
+        };
+
+        const newParent: Parent = {
+            id: newParentId,
+            name: `${studentData.name.split(' ')[0]}'s Parent`,
+            email: `parent.${studentData.email.split('@')[0]}@gmail.com`,
+            avatarUrl: `https://picsum.photos/seed/${newParentId}/200/200`,
+            childIds: [newStudentId],
+        }
+
+        return {
+            ...prevData,
+            students: [...prevData.students, newStudent],
+            parents: [...prevData.parents, newParent]
+        };
     });
-
-    const averageScore = scores.length > 0 ? Math.round(totalScore / scores.length) : 0;
-
-    const newStudent: Student = {
-      ...studentData,
-      id: newStudentId,
-      parentId: newParentId,
-      avatarUrl: `https://picsum.photos/seed/${newStudentId}/200/200`,
-      riskLevel: 'LOW',
-      scores,
-      averageScore,
-      remarks: [],
-      status: 'ACTIVE',
-      admissionDate: new Date().toISOString(),
-      admissionGrade: 1,
-    };
-
-    const newParent: Parent = {
-        id: newParentId,
-        name: `${studentData.name.split(' ')[0]}'s Parent`,
-        email: `parent.${studentData.email.split('@')[0]}@gmail.com`,
-        avatarUrl: `https://picsum.photos/seed/${newParentId}/200/200`,
-        childIds: [newStudentId],
-    }
-
-    setStudents(prev => [...prev, newStudent]);
-    setParents(prev => [...prev, newParent]);
-  }, [subjects]);
+  }, []);
 
   const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'avatarUrl'>) => {
     const newTeacherId = `teacher-gen-${Date.now()}`;
@@ -158,7 +173,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         id: newTeacherId,
         avatarUrl: `https://picsum.photos/seed/${newTeacherId}/200/200`,
     };
-    setTeachers(prev => [...prev, newTeacher]);
+    setData(prev => ({ ...prev, teachers: [...prev.teachers, newTeacher]}));
   }, []);
 
   const addSubject = useCallback((subjectData: Omit<Subject, 'id'>) => {
@@ -167,38 +182,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ...subjectData,
         id: newSubjectId,
     };
-    setSubjects(prev => [...prev, newSubject]);
+    setData(prev => ({ ...prev, subjects: [...prev.subjects, newSubject]}));
   }, []);
 
   const getStudentById = useCallback((studentId: string) => {
-    return students.find(s => s.id === studentId);
-  }, [students]);
+    return data.students.find(s => s.id === studentId);
+  }, [data.students]);
 
   const getPendingAssignmentsForStudent = useCallback((studentId: string) => {
-    const student = students.find(s => s.id === studentId);
+    const student = data.students.find(s => s.id === studentId);
     if (!student) return [];
     return mockAssignments
       .filter(a => a.classId === student.classId)
       .map(a => ({ ...a, studentId, status: 'PENDING' as const }));
-  }, [students]);
+  }, [data.students]);
 
   const updateStudent = useCallback((studentId: string, studentData: { name: string }) => {
-    setStudents(prev => prev.map(s => s.id === studentId ? { ...s, ...studentData } : s));
+    setData(prev => ({ ...prev, students: prev.students.map(s => s.id === studentId ? { ...s, ...studentData } : s) }));
   }, []);
 
   const updateTeacher = useCallback((teacherId: string, teacherData: { name: string }) => {
-    setTeachers(prev => prev.map(t => t.id === teacherId ? { ...t, ...teacherData } : t));
+    setData(prev => ({ ...prev, teachers: prev.teachers.map(t => t.id === teacherId ? { ...t, ...teacherData } : t) }));
   }, []);
 
   const updateParent = useCallback((parentId: string, parentData: { name: string }) => {
-    setParents(prev => prev.map(p => p.id === parentId ? { ...p, ...parentData } : p));
+    setData(prev => ({ ...prev, parents: prev.parents.map(p => p.id === parentId ? { ...p, ...parentData } : p) }));
   }, []);
 
   const saveAttendanceForClass = useCallback((records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => {
-    setAttendance(prevAttendance => {
-        const otherDayRecords = prevAttendance.filter(r => r.date !== date || r.classId !== classId);
+    setData(prev => {
+        const otherDayRecords = prev.attendance.filter(r => r.date !== date || r.classId !== classId);
         const newRecordsForDay: AttendanceRecord[] = records.map(r => ({ ...r, classId, date }));
-        return [...otherDayRecords, ...newRecordsForDay];
+        return { ...prev, attendance: [...otherDayRecords, ...newRecordsForDay] };
     });
   }, []);
   
@@ -212,26 +227,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
         date: new Date().toISOString(),
         scope: scope,
     };
-    setAnnouncements(prev => [newAnnouncement, ...prev]);
+    setData(prev => ({ ...prev, announcements: [newAnnouncement, ...prev.announcements] }));
   }, []);
 
   const addRemarkToStudent = useCallback((studentId: string, remarkContent: string, teacherName: string) => {
-    setStudents(prev => prev.map(s => {
-        if (s.id === studentId) {
-            const newRemark: Remark = {
-                content: remarkContent,
-                teacherName: teacherName,
-                date: new Date().toISOString()
-            };
-            const existingRemarks = s.remarks || [];
-            return { ...s, remarks: [newRemark, ...existingRemarks] };
-        }
-        return s;
+    setData(prev => ({
+        ...prev,
+        students: prev.students.map(s => {
+            if (s.id === studentId) {
+                const newRemark: Remark = { content: remarkContent, teacherName: teacherName, date: new Date().toISOString() };
+                return { ...s, remarks: [newRemark, ...(s.remarks || [])] };
+            }
+            return s;
+        })
     }));
   }, []);
 
   const addQuery = useCallback((question: string, studentId: string, teacherId: string, author: { id: string; name: string; }) => {
-    const teacher = teachers.find(t => t.id === teacherId);
+    const teacher = data.teachers.find(t => t.id === teacherId);
     if (!teacher) return;
 
     const newQuery: Query = {
@@ -244,35 +257,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
         question: question,
         questionDate: new Date().toISOString(),
     };
-    setQueries(prev => [newQuery, ...prev]);
-  }, [teachers]);
+    setData(prev => ({ ...prev, queries: [newQuery, ...prev.queries] }));
+  }, [data.teachers]);
 
   const answerQuery = useCallback((queryId: string, answer: string) => {
-    setQueries(prev => prev.map(q => 
-        q.id === queryId 
-        ? { ...q, answer: answer, answerDate: new Date().toISOString() } 
-        : q
-    ));
+    setData(prev => ({
+        ...prev,
+        queries: prev.queries.map(q => q.id === queryId ? { ...q, answer: answer, answerDate: new Date().toISOString() } : q)
+    }));
   }, []);
 
   const addManualQuiz = useCallback((quiz: Omit<ManualQuiz, 'id'>) => {
-    const newQuiz: ManualQuiz = {
-        ...quiz,
-        id: `quiz-${Date.now()}`
-    };
-    setManualQuizzes(prev => [newQuiz, ...prev]);
+    const newQuiz: ManualQuiz = { ...quiz, id: `quiz-${Date.now()}` };
+    setData(prev => ({ ...prev, manualQuizzes: [newQuiz, ...prev.manualQuizzes] }));
   }, []);
 
+  if (!isMounted) {
+    return null; // or a loading spinner
+  }
+  
   const value = { 
-    students, 
-    parents, 
-    teachers, 
-    subjects, 
-    classes, 
-    attendance,
-    announcements,
-    queries,
-    manualQuizzes,
+    ...data,
     addStudent, 
     addTeacher, 
     addSubject, 
@@ -288,10 +293,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
     answerQuery,
     addManualQuiz,
   };
-  
-  if (loading) {
-    return null;
-  }
 
   return (
     <DataContext.Provider value={value}>
@@ -307,3 +308,5 @@ export function useData() {
   }
   return context;
 }
+
+    
