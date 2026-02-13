@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useAuth } from "@/context/auth-context";
 import { useData } from "@/context/data-context";
-import type { Role, Student, Teacher, Parent } from "@/lib/types";
+import type { Role, Student, Teacher, Parent, User } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -17,7 +17,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "../ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { mockCredentials } from "@/lib/mock-data";
 
 
 const getInitials = (name: string) => {
@@ -54,13 +53,29 @@ export function QuickLoginDialog({ role, open, onOpenChange }: QuickLoginDialogP
         u.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleLogin = (userId: string) => {
-        const user = mockCredentials.find(u => u.id === `user-${userId}`);
-        if (user) {
-            login(user);
+    const handleLogin = (userToLogin: Student | Teacher | Parent) => {
+        let userRole: Role | undefined;
+
+        if ('classId' in userToLogin) {
+            userRole = 'STUDENT';
+        } else if ('subject' in userToLogin) {
+            userRole = 'TEACHER';
+        } else if ('childIds' in userToLogin) {
+            userRole = 'PARENT';
+        }
+        
+        if (userRole) {
+            const userForAuth: User = {
+                id: `user-${userToLogin.id}`,
+                name: userToLogin.name,
+                email: userToLogin.email,
+                role: userRole,
+                avatarUrl: userToLogin.avatarUrl
+            };
+            login(userForAuth);
             toast({
                 title: "Login Successful",
-                description: `Welcome back, ${user.name}!`,
+                description: `Welcome back, ${userForAuth.name}!`,
             });
             router.push("/dashboard");
             onOpenChange(false);
@@ -118,7 +133,7 @@ export function QuickLoginDialog({ role, open, onOpenChange }: QuickLoginDialogP
                                     key={user.id}
                                     variant="ghost"
                                     className="w-full justify-start h-auto p-2"
-                                    onClick={() => handleLogin(user.id)}
+                                    onClick={() => handleLogin(user)}
                                 >
                                     <Avatar className="h-9 w-9">
                                         <AvatarImage src={user.avatarUrl} alt={user.name}/>
