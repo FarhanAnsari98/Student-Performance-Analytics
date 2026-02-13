@@ -215,7 +215,7 @@ export const mockParents: Parent[] = generatedParents;
 
 export const mockAssignments: Assignment[] = [
   ...mockClasses.flatMap(c => ([
-    { id: `assign-${c.id}-1`, classId: c.id, title: `${mockSubjects.find(s => mockTeachers.find(t => t.id === c.teacherId)?.subject === s.name)?.name || 'General'} Homework for ${c.name}`, description: "Complete exercises 1-5 from the textbook.", dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const },
+    { id: `assign-${c.id}-1`, classId: c.id, title: `${mockSubjects.find(s => mockTeachers.find(t => t.id === c.teacherId)?.subject === s.name)?.name || 'General'} Homework for ${c.name}`, description: "Complete exercises 1-5 from the textbook.", dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const, fileName: 'math-worksheet-1.pdf' },
     { id: `assign-${c.id}-2`, classId: c.id, title: `${mockSubjects.find(s => mockTeachers.find(t => t.id === c.teacherId)?.subject === s.name)?.name || 'General'} Quiz for ${c.name}`, description: "Prepare for the upcoming quiz on chapter 2.", dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), status: 'PENDING' as const },
   ]))
 ];

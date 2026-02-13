@@ -38,7 +38,7 @@ interface DataContextType extends AppData {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v12'; // Increment version to avoid conflicts
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v13'; // Increment version to avoid conflicts
 
 // Helper to ensure all fields from Student are present after loading from localStorage
 const mapStudentData = (s: Student): Student => ({
@@ -62,6 +62,7 @@ const loadInitialData = (): AppData => {
     // Clean up older versions if they exist
     localStorage.removeItem('atendalearn-data-v10');
     localStorage.removeItem('atendalearn-data-v11');
+    localStorage.removeItem('atendalearn-data-v12');
 
     const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (storedData) {
