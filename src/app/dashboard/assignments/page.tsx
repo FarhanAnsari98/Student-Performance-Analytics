@@ -6,10 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { BookCopy, CheckCircle, Clock, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AssignmentsPage() {
     const { user } = useAuth();
     const { students, getPendingAssignmentsForStudent } = useData();
+    const { toast } = useToast();
+    
     // This page is for students and parents. A parent would see the selected child's data.
     // For simplicity, we'll assume the logged-in user is a student or we are viewing for the first child.
     const student = students.find(s => s.id === user?.id.replace('user-', '') || s.parentId === user?.id.replace('user-',''));
@@ -19,6 +22,13 @@ export default function AssignmentsPage() {
     }
 
     const pendingAssignments = getPendingAssignmentsForStudent(student.id);
+
+    const handleAttachmentClick = (fileName: string) => {
+        toast({
+          title: "Simulated File Download",
+          description: `"${fileName}" would begin downloading. This is a simulation.`,
+        });
+    };
 
     return (
         <div className="space-y-8">
@@ -48,7 +58,12 @@ export default function AssignmentsPage() {
                                     <Clock className="h-4 w-4" /> Due on {format(new Date(assignment.dueDate), "eeee, MMMM do")}
                                 </p>
                                 {assignment.fileName && (
-                                    <Button variant="outline" size="sm" className="mt-2">
+                                    <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="mt-2"
+                                        onClick={() => handleAttachmentClick(assignment.fileName!)}
+                                    >
                                         <Paperclip className="h-4 w-4 mr-2"/>
                                         {assignment.fileName}
                                     </Button>
