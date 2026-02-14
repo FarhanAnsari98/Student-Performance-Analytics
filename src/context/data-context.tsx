@@ -38,7 +38,7 @@ interface DataContextType extends AppData {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v13'; // Increment version to avoid conflicts
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v14'; // Increment version to ensure fresh data with new logic
 
 // Helper to ensure all fields from Student are present after loading from localStorage
 const mapStudentData = (s: Student): Student => ({
@@ -48,43 +48,8 @@ const mapStudentData = (s: Student): Student => ({
   admissionDate: s.admissionDate || new Date().toISOString(),
 });
 
-// Initializer function to load data from localStorage or use mock data
-const loadInitialData = (): AppData => {
-  // This code runs only on the client, so we can safely check for `window`
-  if (typeof window === 'undefined') {
-    // Return a default empty state for server-side rendering
-    return {
-      students: [], parents: [], teachers: [], subjects: [], classes: [],
-      attendance: [], announcements: [], queries: [], manualQuizzes: [], assignments: []
-    };
-  }
-  try {
-    // Clean up older versions if they exist
-    localStorage.removeItem('atendalearn-data-v10');
-    localStorage.removeItem('atendalearn-data-v11');
-    localStorage.removeItem('atendalearn-data-v12');
-
-    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      // Ensure data integrity on load
-      return {
-        students: (parsedData.students || mockStudents).map(mapStudentData),
-        parents: parsedData.parents || mockParents,
-        teachers: parsedData.teachers || mockTeachers,
-        subjects: parsedData.subjects || mockSubjects,
-        classes: parsedData.classes || mockClasses,
-        attendance: parsedData.attendance || mockAttendance,
-        announcements: parsedData.announcements || mockAnnouncements,
-        queries: parsedData.queries || mockQueries,
-        manualQuizzes: parsedData.manualQuizzes || [],
-        assignments: parsedData.assignments || mockAssignments,
-      };
-    }
-  } catch (error) {
-    console.error("Failed to parse data from localStorage, using mock data.", error);
-  }
-  // Return fresh mock data if nothing in storage or if parsing fails
+// Provides the mock data as the initial state on both server and client
+const getInitialData = (): AppData => {
   return {
     students: mockStudents.map(mapStudentData),
     parents: mockParents,
@@ -100,25 +65,52 @@ const loadInitialData = (): AppData => {
 };
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(loadInitialData);
-  const [isMounted, setIsMounted] = useState(false);
+  const [data, setData] = useState<AppData>(getInitialData);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Ensure we only interact with localStorage on the client after mount
+  // On mount, on the client, load data from localStorage.
   useEffect(() => {
-    setIsMounted(true);
-    setData(loadInitialData());
+    try {
+      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        // Ensure data integrity on load
+        setData({
+          students: (parsedData.students || mockStudents).map(mapStudentData),
+          parents: parsedData.parents || mockParents,
+          teachers: parsedData.teachers || mockTeachers,
+          subjects: parsedData.subjects || mockSubjects,
+          classes: parsedData.classes || mockClasses,
+          attendance: parsedData.attendance || mockAttendance,
+          announcements: parsedData.announcements || mockAnnouncements,
+          queries: parsedData.queries || mockQueries,
+          manualQuizzes: parsedData.manualQuizzes || [],
+          assignments: parsedData.assignments || mockAssignments,
+        });
+      } else {
+         // Clear older versions if they exist
+        localStorage.removeItem('atendalearn-data-v10');
+        localStorage.removeItem('atendalearn-data-v11');
+        localStorage.removeItem('atendalearn-data-v12');
+        localStorage.removeItem('atendalearn-data-v13');
+      }
+    } catch (error) {
+      console.error("Failed to parse data from localStorage, using mock data.", error);
+    } finally {
+      setIsInitialized(true);
+    }
   }, []);
 
-  // Effect to save the entire state to localStorage whenever it changes
+  // Save to localStorage whenever data changes, but only after initialization
   useEffect(() => {
-    if (isMounted) {
+    if (isInitialized) {
         try {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
         } catch (error) {
             console.error("Failed to save data to localStorage", error);
         }
     }
-  }, [data, isMounted]);
+  }, [data, isInitialized]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => {
     setData(prevData => {
@@ -286,8 +278,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setData(prev => ({ ...prev, assignments: [newAssignment, ...prev.assignments] }));
   }, []);
 
-  if (!isMounted) {
-    return null; // or a loading spinner
+  if (!isInitialized) {
+    return null; // Render nothing on the server and on first client render to prevent hydration issues
   }
   
   const value = { 
