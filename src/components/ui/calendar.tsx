@@ -20,7 +20,7 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-4 w-fit rounded-xl bg-white", className)}
+      className={cn("p-4 w-fit rounded-xl bg-background", className)}
       classNames={{
         months: "flex flex-col",
         month: "space-y-4",
@@ -49,12 +49,12 @@ function Calendar({
         ),
 
         day_selected:
-          "bg-blue-500 text-white rounded-full hover:bg-blue-500",
+          "bg-primary text-primary-foreground rounded-full hover:bg-primary/90",
 
         day_today:
-          "border border-blue-500 text-blue-600 rounded-full",
+          "bg-accent text-accent-foreground rounded-full",
 
-        day_outside: "text-gray-300",
+        day_outside: "text-muted-foreground opacity-50",
 
         ...classNames,
       }}
@@ -64,14 +64,28 @@ function Calendar({
             month: "short",
             day: "numeric",
           }).toUpperCase(),
+        formatWeekdayName: (day) => day.toLocaleDateString('en-US', { weekday: 'short' }),
       }}
       components={{
         IconLeft: () => <ChevronLeft className="h-4 w-4" />,
         IconRight: () => <ChevronRight className="h-4 w-4" />,
       }}
       footer={
-        <div className="text-center text-xs pt-3 border-t mt-3 text-blue-500 font-medium">
-          TODAY {today.getDate()}
+        <div className="text-center text-xs pt-3 border-t mt-3">
+           <button
+              type="button"
+              onClick={() => {
+                 if (props.onSelect && props.mode === 'single') {
+                  const onSelectHandler = props.onSelect as (date?: Date) => void;
+                  if (onSelectHandler) {
+                    onSelectHandler(today);
+                  }
+                }
+              }}
+              className={cn(buttonVariants({ variant: "link" }), "text-sm font-medium text-primary")}
+            >
+              Today
+            </button>
         </div>
       }
       {...props}
