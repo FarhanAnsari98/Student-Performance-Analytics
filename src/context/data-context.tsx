@@ -38,7 +38,7 @@ interface DataContextType extends AppData {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'atendalearn-data-v15';
+const LOCAL_STORAGE_KEY = 'atendalearn-data-v16';
 
 const getInitialData = (): AppData => ({
     students: mockStudents,
@@ -61,48 +61,49 @@ const mapStudentData = (s: any): Student => ({
 });
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(getInitialData());
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [data, setData] = useState<AppData | undefined>(undefined);
 
   useEffect(() => {
+    let loadedData: AppData;
     try {
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        // Ensure data integrity on load with all the latest fields
-        setData({
-          students: (parsedData.students || mockStudents).map(mapStudentData),
-          parents: parsedData.parents ?? mockParents,
-          teachers: parsedData.teachers ?? mockTeachers,
-          subjects: parsedData.subjects ?? mockSubjects,
-          classes: parsedData.classes ?? mockClasses,
-          attendance: parsedData.attendance ?? mockAttendance,
-          announcements: parsedData.announcements ?? mockAnnouncements,
-          queries: parsedData.queries ?? mockQueries,
+        loadedData = {
+          students: (parsedData.students ?? []).map(mapStudentData),
+          parents: parsedData.parents ?? [],
+          teachers: parsedData.teachers ?? [],
+          subjects: parsedData.subjects ?? [],
+          classes: parsedData.classes ?? [],
+          attendance: parsedData.attendance ?? [],
+          announcements: parsedData.announcements ?? [],
+          queries: parsedData.queries ?? [],
           manualQuizzes: parsedData.manualQuizzes ?? [],
-          assignments: parsedData.assignments ?? mockAssignments,
-        });
+          assignments: parsedData.assignments ?? [],
+        };
+      } else {
+        loadedData = getInitialData();
       }
     } catch (error) {
-      console.error("Failed to parse data from localStorage, initializing with mock data.", error);
-      // Stick with initial mock data if parsing fails
-    } finally {
-      setIsLoaded(true);
+      console.error("Error loading data from localStorage, falling back to mock data.", error);
+      loadedData = getInitialData();
     }
+    setData(loadedData);
   }, []);
 
   useEffect(() => {
-    if (isLoaded) {
-        try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-        } catch (error) {
-            console.error("Failed to save data to localStorage", error);
-        }
+    if (data !== undefined) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+      } catch (error) {
+        console.error("Failed to save data to localStorage", error);
+      }
     }
-  }, [data, isLoaded]);
+  }, [data]);
 
   const addStudent = useCallback((studentData: Omit<Student, 'id' | 'avatarUrl' | 'riskLevel' | 'parentId' | 'scores' | 'averageScore' | 'remarks' | 'status' | 'admissionDate' | 'admissionGrade' | 'graduationYear' | 'terminationDate'>) => {
     setData(prevData => {
+        if (!prevData) return undefined;
         const newStudentId = `student-gen-${Date.now()}`;
         const newParentId = `parent-gen-${Date.now()}`;
         
@@ -153,22 +154,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addTeacher = useCallback((teacherData: Omit<Teacher, 'id' | 'avatarUrl'>) => {
-    const newTeacherId = `teacher-gen-${Date.now()}`;
-    const newTeacher: Teacher = {
-        ...teacherData,
-        id: newTeacherId,
-        avatarUrl: `https://picsum.photos/seed/${newTeacherId}/200/200`,
-    };
-    setData(prev => ({ ...prev, teachers: [...prev.teachers, newTeacher]}));
+    setData(prev => {
+        if (!prev) return undefined;
+        const newTeacherId = `teacher-gen-${Date.now()}`;
+        const newTeacher: Teacher = {
+            ...teacherData,
+            id: newTeacherId,
+            avatarUrl: `https://picsum.photos/seed/${newTeacherId}/200/200`,
+        };
+        return { ...prev, teachers: [...prev.teachers, newTeacher]};
+    });
   }, []);
 
   const addSubject = useCallback((subjectData: Omit<Subject, 'id'>) => {
-    const newSubjectId = `subject-gen-${Date.now()}`;
-    const newSubject: Subject = {
-        ...subjectData,
-        id: newSubjectId,
-    };
-    setData(prev => ({ ...prev, subjects: [...prev.subjects, newSubject]}));
+    setData(prev => {
+        if (!prev) return undefined;
+        const newSubjectId = `subject-gen-${Date.now()}`;
+        const newSubject: Subject = {
+            ...subjectData,
+            id: newSubjectId,
+        };
+        return { ...prev, subjects: [...prev.subjects, newSubject]};
+    });
   }, []);
 
   const getStudentById = useCallback((studentId: string) => {
@@ -185,19 +192,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [data]);
 
   const updateStudent = useCallback((studentId: string, studentData: { name: string }) => {
-    setData(prev => ({ ...prev, students: prev.students.map(s => s.id === studentId ? { ...s, ...studentData } : s) }));
+    setData(prev => prev ? ({ ...prev, students: prev.students.map(s => s.id === studentId ? { ...s, ...studentData } : s) }) : undefined);
   }, []);
 
   const updateTeacher = useCallback((teacherId: string, teacherData: { name: string }) => {
-    setData(prev => ({ ...prev, teachers: prev.teachers.map(t => t.id === teacherId ? { ...t, ...teacherData } : t) }));
+    setData(prev => prev ? ({ ...prev, teachers: prev.teachers.map(t => t.id === teacherId ? { ...t, ...teacherData } : t) }) : undefined);
   }, []);
 
   const updateParent = useCallback((parentId: string, parentData: { name: string }) => {
-    setData(prev => ({ ...prev, parents: prev.parents.map(p => p.id === parentId ? { ...p, ...parentData } : p) }));
+    setData(prev => prev ? ({ ...prev, parents: prev.parents.map(p => p.id === parentId ? { ...p, ...parentData } : p) }) : undefined);
   }, []);
 
   const saveAttendanceForClass = useCallback((records: { studentId: string; status: AttendanceStatus }[], classId: string, date: string) => {
     setData(prev => {
+        if (!prev) return undefined;
         const otherDayRecords = prev.attendance.filter(r => r.date !== date || r.classId !== classId);
         const newRecordsForDay: AttendanceRecord[] = records.map(r => ({ ...r, classId, date }));
         return { ...prev, attendance: [...otherDayRecords, ...newRecordsForDay] };
@@ -205,20 +213,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
   
   const addAnnouncement = useCallback((content: string, author: { id: string; name: string; role: Role }, scope: 'public' | 'internal') => {
-    const newAnnouncement: Announcement = {
-        id: `ann-${Date.now()}`,
-        authorId: author.id,
-        authorName: author.name,
-        authorRole: author.role,
-        content: content,
-        date: new Date().toISOString(),
-        scope: scope,
-    };
-    setData(prev => ({ ...prev, announcements: [newAnnouncement, ...prev.announcements] }));
+    setData(prev => {
+        if (!prev) return undefined;
+        const newAnnouncement: Announcement = {
+            id: `ann-${Date.now()}`,
+            authorId: author.id,
+            authorName: author.name,
+            authorRole: author.role,
+            content: content,
+            date: new Date().toISOString(),
+            scope: scope,
+        };
+        return { ...prev, announcements: [newAnnouncement, ...prev.announcements] };
+    });
   }, []);
 
   const addRemarkToStudent = useCallback((studentId: string, remarkContent: string, teacherName: string) => {
     setData(prev => {
+        if (!prev) return undefined;
         return {
             ...prev,
             students: prev.students.map(s => {
@@ -234,6 +246,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const addQuery = useCallback((question: string, studentId: string, teacherId: string, author: { id: string; name: string; }) => {
     setData(prev => {
+      if (!prev) return undefined;
       const teacher = prev.teachers.find(t => t.id === teacherId);
       if (!teacher) return prev;
 
@@ -253,6 +266,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const answerQuery = useCallback((queryId: string, answer: string) => {
     setData(prev => {
+        if (!prev) return undefined;
         return {
             ...prev,
             queries: prev.queries.map(q => q.id === queryId ? { ...q, answer: answer, answerDate: new Date().toISOString() } : q)
@@ -261,24 +275,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addManualQuiz = useCallback((quiz: Omit<ManualQuiz, 'id'>) => {
-    const newQuiz: ManualQuiz = { ...quiz, id: `quiz-${Date.now()}` };
-    setData(prev => ({ ...prev, manualQuizzes: [newQuiz, ...prev.manualQuizzes] }));
+    setData(prev => {
+        if (!prev) return undefined;
+        const newQuiz: ManualQuiz = { ...quiz, id: `quiz-${Date.now()}` };
+        return { ...prev, manualQuizzes: [newQuiz, ...prev.manualQuizzes] };
+    });
   }, []);
 
   const addAssignment = useCallback((assignmentData: Omit<Assignment, 'id' | 'status'>) => {
-    const newAssignment: Assignment = {
-      ...assignmentData,
-      id: `assign-gen-${Date.now()}`,
-      status: 'PENDING',
-    };
-    setData(prev => ({ ...prev, assignments: [newAssignment, ...prev.assignments] }));
+    setData(prev => {
+        if (!prev) return undefined;
+        const newAssignment: Assignment = {
+          ...assignmentData,
+          id: `assign-gen-${Date.now()}`,
+          status: 'PENDING',
+        };
+        return { ...prev, assignments: [newAssignment, ...prev.assignments] };
+    });
   }, []);
 
-  if (!isLoaded) {
-    return null; // Render nothing until data is loaded on the client to prevent hydration errors
+  if (data === undefined) {
+    return null; // Render nothing until data is loaded to prevent hydration errors.
   }
   
-  const value = { 
+  const value: DataContextType = { 
     ...data,
     addStudent, 
     addTeacher, 
