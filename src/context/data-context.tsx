@@ -34,6 +34,7 @@ interface DataContextType extends AppData {
   answerQuery: (queryId: string, answer: string) => void;
   addManualQuiz: (quiz: Omit<ManualQuiz, 'id'>) => void;
   addAssignment: (assignment: Omit<Assignment, 'id' | 'status'>) => void;
+  setStudentSubjectScore: (studentId: string, subjectName: string, score: number) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -208,7 +209,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
         if (!prev) return undefined;
         const otherDayRecords = prev.attendance.filter(r => r.date !== date || r.classId !== classId);
         const newRecordsForDay: AttendanceRecord[] = records.map(r => ({ ...r, classId, date }));
-        return { ...prev, attendance: [...otherDayRecords, ...newRecordsForDay] };
+        const next = { ...prev, attendance: [...otherDayRecords, ...newRecordsForDay] };
+        fetch('/api/attendance/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ classId, date, records }),
+        }).catch(() => {});
+        return next;
     });
   }, []);
   
@@ -294,6 +301,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setStudentSubjectScore = useCallback((studentId: string, subjectName: string, score: number) => {
+    setData(prev => {
+      if (!prev) return undefined;
+      const students = prev.students.map(s => {
+        if (s.id !== studentId) return s;
+        const existing = s.scores.find(sc => sc.subject === subjectName);
+        const newScores = existing
+          ? s.scores.map(sc => sc.subject === subjectName ? { subject: subjectName, score } : sc)
+          : [...s.scores, { subject: subjectName, score }];
+        const total = newScores.reduce((acc, cur) => acc + cur.score, 0);
+        const averageScore = newScores.length > 0 ? Math.round(total / newScores.length) : 0;
+        const updated = { ...s, scores: newScores, averageScore };
+        fetch('/api/marks/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId, subject: subjectName, score }),
+        }).catch(() => {});
+        return updated;
+      });
+      return { ...prev, students };
+    });
+  }, []);
+
+
   if (data === undefined) {
     return null; // Render nothing until data is loaded to prevent hydration errors.
   }
@@ -315,6 +346,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     answerQuery,
     addManualQuiz,
     addAssignment,
+    setStudentSubjectScore,
   };
 
   return (

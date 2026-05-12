@@ -10,6 +10,7 @@ import { SubjectPerformanceChart } from '@/components/dashboard/subject-performa
 import { ArrowLeft, BookCopy, Clock, TrendingDown, TrendingUp, Users, MessageSquare, Calendar, GraduationCap, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { generateStudentReportCard } from '@/lib/report-card-pdf';
 
 const getInitials = (name: string) => {
     const names = name.split(' ');
@@ -80,6 +81,21 @@ export default function StudentProfilePage() {
                 </div>
             </div>
        </div>
+
+      <div className="flex gap-2">
+        <Button variant="default" onClick={() => {
+          generateStudentReportCard({
+            student,
+            parent,
+            studentClass,
+          });
+        }}>
+          Download Report Card (PDF)
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/dashboard/students"><ArrowLeft className="mr-2 h-4 w-4" />Back</Link>
+        </Button>
+      </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>

@@ -8,10 +8,20 @@ import { format } from "date-fns";
 import { Separator } from "../ui/separator";
 import { useData } from '@/context/data-context';
 import { Badge } from '../ui/badge';
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { AttendanceTracker } from "./attendance-tracker";
 
 export function TeacherDashboard() {
   const { user } = useAuth();
-  const { students, teachers, classes, getPendingAssignmentsForStudent } = useData();
+  const { students, teachers, classes, getPendingAssignmentsForStudent, setStudentSubjectScore } = useData();
+  const { toast } = useToast();
+  const [selectedStudentId, setSelectedStudentId] = React.useState<string>("");
+  const [marks, setMarks] = React.useState<string>("");
+  const [isSaving, setIsSaving] = React.useState<boolean>(false);
   const teacher = teachers.find(t => t.id === user?.id.replace('user-', ''));
   
   if (!teacher) {
@@ -24,6 +34,10 @@ export function TeacherDashboard() {
   const pendingAssignments = assignedStudents.flatMap(s => getPendingAssignmentsForStudent(s.id));
   
   const upcomingAssignments = pendingAssignments.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()).slice(0, 5);
+  
+  React.useEffect(() => {
+    setSelectedStudentId(prev => prev || (assignedStudents[0]?.id ?? ""));
+  }, [assignedStudents]);
 
   return (
     <div className="space-y-8">
@@ -92,6 +106,73 @@ export function TeacherDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <AttendanceTracker />
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Enter Marks Manually</CardTitle>
+          <CardDescription>Add or update a student's marks for {teacher.subject}.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Student</Label>
+              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select student" />
+                </SelectTrigger>
+                <SelectContent>
+                  {assignedStudents.map(s => (
+                    <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Subject</Label>
+              <Input value={teacher.subject} readOnly />
+            </div>
+            <div className="space-y-2">
+              <Label>Marks (0–100)</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                value={marks}
+                onChange={(e) => setMarks(e.target.value)}
+                placeholder="Enter marks"
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              disabled={isSaving}
+              onClick={() => {
+                if (!selectedStudentId) {
+                  toast({ title: "Select a student", description: "Please choose a student to record marks." });
+                  return;
+                }
+                const value = Number(marks);
+                if (Number.isNaN(value) || value < 0 || value > 100) {
+                  toast({ title: "Invalid marks", description: "Enter a value between 0 and 100." });
+                  return;
+                }
+                setIsSaving(true);
+                try {
+                  setStudentSubjectScore(selectedStudentId, teacher.subject, Math.round(value));
+                  toast({ title: "Marks saved", description: "The student's marks have been updated." });
+                  setMarks("");
+                } finally {
+                  setIsSaving(false);
+                }
+              }}
+            >
+              Save Marks
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

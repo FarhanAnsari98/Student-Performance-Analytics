@@ -3,8 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Users, TrendingUp, ShieldAlert, Library, GraduationCap, School, Contact } from "lucide-react";
-import { StudentRiskChart } from "./student-risk-chart";
+import { Users, TrendingUp, Library, GraduationCap, School, Contact } from "lucide-react";
 import { StudentsDataTable } from "./students-data-table";
 import { useData } from '@/context/data-context';
 import { AddStudentDialog } from './add-student-dialog';
@@ -18,7 +17,6 @@ export function AdminDashboard() {
   const totalTeachers = teachers.length;
   const totalSubjects = subjects.length;
   const totalClasses = classes.length;
-  const highRiskStudents = activeStudents.filter(s => s.riskLevel === 'HIGH').length;
 
   const averageAttendance = totalStudents > 0 ? (
     activeStudents.reduce((acc, s) => acc + s.attendancePercentage, 0) / totalStudents
@@ -71,15 +69,7 @@ export function AdminDashboard() {
             <div className="text-2xl font-bold">{averageAttendance}%</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">High-Risk Students</CardTitle>
-            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{highRiskStudents}</div>
-          </CardContent>
-        </Card>
+        
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -92,14 +82,6 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
         <div className="col-span-4 lg:col-span-3 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-headline">Student Risk Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <StudentRiskChart students={activeStudents} />
-              </CardContent>
-            </Card>
              <div className="grid grid-cols-2 gap-4">
                 <Link href="/dashboard/subjects">
                     <Card className="hover:bg-muted">
